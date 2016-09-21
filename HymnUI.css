@@ -897,7 +897,7 @@ h4:hover {opacity: 1}
 }
 
 @media all and (max-width: 480px) {
-    .popup {left: 10px;} #settingsmenu {width: auto}
+    .popup {left: 10px;} #settingsmenu {width: auto} #autocomplete {display: none}
 }
 
 @media all and (max-width: 1023px) and (max-height: 400px) {
