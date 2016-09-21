@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Seventh-Day Adventist Hymnal</title>
+        <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <link rel="apple-touch-icon" href="resources/images/ios-Icon.png" />
+        <link rel="stylesheet" type="text/css" href="UI.css" />
+        <link rel="stylesheet" type="text/css" href="HymnUI.css" />
+        <script type="text/javascript" src="resources/objects/hymnal_data.js"></script>
+        <script type="text/javascript" src="data.js"></script>
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script type="text/javascript" src="resources/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
+    </head>
+    <body>
+        <section id="searchlayer">
+            <header>
+                <div id="headerelements">
+                    <span id="langselect">English</span>
+                    <span id="headerdivider"></span>
+                    <img id="settingsicon" src="resources/images/settings.svg" selected="false" onclick="settingsmenu.toggle(); event.stopImmediatePropagation()"/>
+                    <div id="settingsmenu" class="popup" active="false">
+                        <row>Language: <span class="UI_DROP" options="English">English</span></row>
+                        <row>Hymnal: <span class="UI_DROP" options="1985 version">1985 version</span></row>
+                    </div>
+                </div>
+            </header>
+            <article>
+                <nav id="musicsettings"><span id="tags"></span></nav>
+                <div id="searchcomponents">
+                    <div id="apparentsearchbar">
+                        <div id="searchbar">
+                            <div id="searchcontent">
+                                <!--span id="tags"><span class="searchtag"></span></span>-->
+                                <span id="searchtext">
+                                    <span id="autocomplete"></span>
+                                    <input id="searchinput" type="text" placeholder="Hymn name or number" onfocus="send(this.value)" oninput="send(this.value)" autocorrect="false" />
+                                </span>
+                            </div>
+                        </div><div id="submitbutton" onclick="choose()"><img id="submiticon" src="resources/images/submit.svg" draggable="false"/></div>
+                    </div>
+                    <div id="searchresults">
+                        <ul id="resultslist"></ul>
+                    </div>
+                </div>
+            </article>
+            <footer>
+                <div id="footerelements">
+                    <!-- <span>feedback</span><span>about</span><span>resources</span> -->
+                    <!-- <span>feedback</span> -->
+                    <span onclick="fadeInLayer($('#extraslayer')[0])">about</span>
+                    <a href="mailto:contact@davidsruiz.com"><span>contact</span></a>
+                </div>
+            </footer>
+        </section>
+        <section id="welcomelayer" onclick="hideLayer(this)">
+            <div id="organizationelements">
+                <img src="resources/images/WhiteSDALogo.svg" draggable="false" /><br/>
+                <span>A Seventh Day Adventist Hymnal</span>
+            </div>
+        </section>
+        <section id="extraslayer" onclick="fadeOutLayer(this)">
+            <div id="infopageelements">
+                <div id="infopageheader">About</div>
+                <div id="infopagecontent">
+<p>
+  Daily, we use sites and services that exceed our expectations in features and functionality
+  as companies around the world pour time and investment into the technological future of
+  our society. Yet most of the content we come across rarely has an impact on our lives for
+  the better. And with quality gap between sacred and secular content growing ever more, current
+  sites that get the job done just don't inspire or unite. This site was born out of necessity to have
+  an accesible hymnal on every screen, and to further the outreach of the word to every part of
+  the world.
+</p>
+<p>
+  Welcome to the number one Adventist Hymnal on the web!
+  Designed to replace the physical hymnal using by means of speed, availablily, and portability.
+  Share the site to spread the love. And remember to sing!
+</p>
+<p>
+  <br>
+  <br>
+  <br>
+  <br>
+  This hymnal was imagined, planned and created (with &#9825; and JS) by <a href="http://davidsruiz.com" title="website">David Ruiz</a>
+  <br>
+  Feedback is welcome at
+  <a href="mailto:contact@davidsruiz.com" title="email">contact@davidsruiz.com</a>
+</p>
+
+<!-- <p>Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia.</p>
+
+<p>Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi.</p>
+
+<p>Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis.</p>
+
+<p>Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
+
+<p>In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna.</p>
+
+<p>In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem.</p></div> -->
+            </div>
+        </section>
+        <section id="slidelayer">
+            <div id="desktopUI">
+                <header>
+                    <div id="quitslidebutton" onclick="quitSlide()"><img src="resources/images/close.svg" draggable="false"/></div>
+                    <div id="slideoptions"><span id="slideNavigation"></span></div>
+                </header>
+                <article onclick="nextSlide()">
+                    <!-- <div id="lefttitleslide"><h1>#324</h1></div><div id="righttitleslide"><h1>Cristo es mi Amante Salvador</h1></div> -->
+                    <div id="wordsnormalslide">
+                        <h2>Verse 1</h2>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>asse platea dictumst. Curabitur at lacu</h3>
+                        <h3>laoreet, felis eros vehicula leo, at</h3>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                    <div>
+                </article>
+                <footer><h4>*Stanza 1 to be sung as refrain after stanzas 2 to 5</h4></footer>
+            </div>
+            <div id="mobileUI">
+                <header><span id="mobiletitlecontainer"><h1>#324 Cristo es mi Amante Salvador</h1></span><span id="mobilequitslidebutton" onclick="quitSlide()"><img src="resources/images/close.svg" /></span></header>
+                <article>
+                    <div id="mobileslidecenterblock">
+                        <h2>Verse 1</h2>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>asse platea dictumst. Curabitur at lacu</h3>
+                        <h3>laoreet, felis eros vehicula leo, at</h3>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <h2>Refrain</h2>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>asse platea dictumst. Curabitur at lacu</h3>
+                        <h3>laoreet, felis eros vehicula leo, at</h3>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <h2>Verse 1</h2>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>asse platea dictumst. Curabitur at lacu</h3>
+                        <h3>laoreet, felis eros vehicula leo, at</h3>
+                        <h3>In dui magna, posuere eget, vestibulum et</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <h3>te arcu. Phasellus accumsan</h3>
+                        <footer><h4>*Stanza 1 to be sung as refrain after stanzas 2 to 5</h4></footer>
+                    </div>
+                </article>
+            </div>
+        </section>
+        <script type="text/javascript" src="UI.js"></script>
+        <script type="text/javascript" src="core.js"></script>
+    </body>
+</html>
