@@ -135,8 +135,8 @@ function search(hymnal, query) {
     ranks.sort(compareRanks);
     //sortByRank(ranks);
 
-    var numberOfResults = 5;
-    ranks = ranks.slice(0, numberOfResults);
+    var maxResults = 5;
+    ranks = ranks.slice(0, maxResults);
 
     return ranks.filter(weakRanks);
 }
