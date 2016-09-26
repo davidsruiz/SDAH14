@@ -429,12 +429,14 @@ var childSelected;
 function selectLI(elem) {
     if(childSelected) deselectLI(childSelected);
     elem.className = elem.className + " hover";
+    $('#submitbutton')[0].removeAttribute("disabled");
     childSelected = elem;
     predict();
 }
 
 function deselectLI(elem) {
     elem.className = elem.className.replace(" hover", "");
+    $('#submitbutton')[0].setAttribute("disabled", "");
     if(childSelected === elem) childSelected = undefined;
     setAutocompleteText("");
 }
@@ -1176,6 +1178,14 @@ var localizationStrings = {
     "hymn-number" : {
       "English" : "SDA Hymn",
       "Spanish" : "Himno"
+    },
+    "info-main-category" : {
+      "English" : "Category",
+      "Spanish" : "Primario"
+    },
+    "info-sub-category" : {
+      "English" : "Subcategory",
+      "Spanish" : "Secundario"
     }
   },
   "Lyrics" : {
