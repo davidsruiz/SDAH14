@@ -27,31 +27,42 @@ if(!getLocalStorageKey("first")) {
 // ON URL DATA //
 var hymnal;
 window.onload = function () {
-  var hymnal_id, list ;
-  if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
-    setLocalStorageKey("hymnal", hymnal_id);
-  } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
-    overwriteURLKey("h", hymnal_id);
-  } else {
-    loadHymnal(defaultHymnal)
-    setLocalStorageKey("hymnal", defaultHymnal);
-    overwriteURLKey("h", defaultHymnal);
-  }
+  waitingLoop()
+}
 
-  hymnal = data;
+function waitingLoop() {
+  if(HYMNAL_DATA) {
+    setup()
+  } else { setTimeout(function() { waitingLoop() }, 50) }
+}
 
-  // start hymn
-  if(readFromURL("num")) loadHymn(readFromURL("num")[0]);
+function setup() {
 
-  // UI
-  var dd = $('#set_hymnal')[0]; // drop down
-  var op = "";
-  for(var id in HYMNAL_DATA) op = op + (op ? ", " : "") + HYMNAL_DATA[id].description + "|" + id;
-  dd.setAttribute('options', op);
-  dd.childNodes[0].textContent = HYMNAL_DATA[hymnal_id].description;
-  dd.onchange = function(new_value) {overwriteURLKey('h', new_value); location.reload()};
+    var hymnal_id, list ;
+    if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
+      setLocalStorageKey("hymnal", hymnal_id);
+    } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
+      overwriteURLKey("h", hymnal_id);
+    } else {
+      loadHymnal(defaultHymnal)
+      setLocalStorageKey("hymnal", defaultHymnal);
+      overwriteURLKey("h", defaultHymnal);
+    }
 
-  localize();
+    hymnal = data;
+
+    // start hymn
+    if(readFromURL("num")) loadHymn(readFromURL("num")[0]);
+
+    // UI
+    var dd = $('#set_hymnal')[0]; // drop down
+    var op = "";
+    for(var id in HYMNAL_DATA) op = op + (op ? ", " : "") + HYMNAL_DATA[id].description + "|" + id;
+    dd.setAttribute('options', op);
+    dd.childNodes[0].textContent = HYMNAL_DATA[hymnal_id].description;
+    dd.onchange = function(new_value) {overwriteURLKey('h', new_value); location.reload()};
+
+    localize();
 }
 
 //             //
@@ -1069,7 +1080,7 @@ function clearURLKey(key) {
       url_str = url_str + key + "=" + value + "&"
     }
   }
-  pushStatePageHistory({}, titleFromURL(present_parameters), url_str);
+  pushStatePageHistory(titleFromURL(present_parameters), url_str);
 }
 
 function titleFromURL(present_parameters) {
