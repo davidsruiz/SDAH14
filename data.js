@@ -9,8 +9,8 @@ var notUndefined = function(x) { return x !== undefined };
 String.prototype.replaceAll = function(find, replace) { return this.split(find).join(replace) }
 String.prototype.removeDiacritics = function() {
   var new_str = this;
-  var diacritics = ["á", "é", "í", "ó", "ú", "ñ"];
-  var alternatives = ["a", "e", "i", "o", "u", "n"];
+  var diacritics = ["á", "é", "í", "ó", "ú", "ñ", "ü"];
+  var alternatives = ["a", "e", "i", "o", "u", "n", "u"];
   for(var i = 0; i < diacritics.length; i++) {
     new_str = new_str.replaceAll(diacritics[i], alternatives[i]);
     new_str = new_str.replaceAll(diacritics[i].toUpperCase(), alternatives[i].toUpperCase());
@@ -26,14 +26,14 @@ String.prototype.removePunctutation = function() {
   return new_str;
 }
 
-
-
-var hymnal = HYMNAL_DATA["Spanish - 2010"];
-var data = hymnal.data;
-var categories = hymnal.categories;
-
-
-
+// LOAD HYMNAL !!
+var hymnal, data, categories;
+function loadHymnal(hymnal_id) {
+  hymnal = HYMNAL_DATA[hymnal_id]; // e.g. "en", "sp2010", "sp1960"
+  data = hymnal.data;
+  categories = hymnal.categories;
+}
+//             !!
 
 function categoryFromNumber(n) {
   var main = categories.main;
@@ -88,14 +88,30 @@ function subcategoryFromNumber(n) {
 //     }
 // }
 
-function officialCategory(informal) {
-  var index = categories.main[1].map(function(c){return c.toLowerCase().removeDiacritics()}).indexOf(informal.toLowerCase().removeDiacritics())
+function categoryFoundWithName(informal) {
+  return !!officialCategoryName(informal)
+}
+
+function subcategoryFoundWithName(informal) {
+  return !!officialSubcategoryName(informal)
+}
+
+function officialCategoryName(informal) {
+  var index = categories.main[1].map(function(c){return c ? c.toLowerCase().removeDiacritics() : c}).indexOf(informal.toLowerCase().removeDiacritics())
   if(index !== -1) return categories.main[1][index];
 }
 
-function officialSubcategory(informal) {
-  var index = categories.sub[1].map(function(c){return c.toLowerCase().removeDiacritics()}).indexOf(informal.toLowerCase().removeDiacritics())
+function officialSubcategoryName(informal) {
+  var index = categories.sub[1].map(function(c){return c ? c.toLowerCase().removeDiacritics() : c}).indexOf(informal.toLowerCase().removeDiacritics())
   if(index !== -1) return categories.sub[1][index];
+}
+
+function categoryHolds(category, subcategory) {
+  if(!category || !subcategory) return false;
+  var cat_index = categories.main[1].indexOf(category);
+  var sub_index = categories.sub[1].indexOf(category);
+  var sub_upper_limit = categories.sub[0][sub_index+1], cat_upper_limit = categories.main[cat_index+1], cat_lower_limit = categories.main[cat_index]
+  return (sub_upper_limit) > (cat_lower_limit) && (sub_upper_limit) <= (cat_upper_limit)
 }
 
 function CATEGORY(name) {

@@ -32,28 +32,53 @@ if(typeof(Storage) !== undefined) {
 // LOAD LANGUAGE //
 var language;
 
-if(typeof(Storage) !== undefined) {
-    try{
-        if(localStorage.getItem("com.sdahymns.lang") !== null) {
-            language = localStorage.getItem("com.sdahymns.lang");
-        } else {
-            language = "English";
-            localStorage.setItem("com.sdahymns.lang", language);
-        }
-    } catch (e) {
-        console.info("localStorage is unavailable");
-    }
-} else {
-    language = "English";
-}
+var localizationStrings = {};
 
-var hymnal = data;
+// if(typeof(Storage) !== undefined) {
+//     try{
+//         if(localStorage.getItem("com.sdahymns.lang") !== null) {
+//             language = localStorage.getItem("com.sdahymns.lang");
+//         } else {
+//             language = "English";
+//             localStorage.setItem("com.sdahymns.lang", language);
+//         }
+//     } catch (e) {
+//         console.info("localStorage is unavailable");
+//     }
+// } else {
+//     language = "English";
+// }
+//
+// var hymnal = data;
 
 //               //
 
 // ON URL DATA //
 
-window.onload = function () {if(readFromURL("num")) loadHymn(readFromURL("num"));}
+window.onload = function () {
+
+  if(readFromURL("h")) {
+
+  } else if(typeof(Storage) !== undefined) {
+      try{
+          if(localStorage.getItem("com.sdahymns.lang") !== null) {
+              language = localStorage.getItem("com.sdahymns.lang");
+          } else {
+              language = "English";
+              localStorage.setItem("com.sdahymns.lang", language);
+          }
+      } catch (e) {
+          console.info("localStorage is unavailable");
+      }
+  } else {
+      language = "English";
+  }
+
+  var hymnal = data;
+
+  // start hymn
+  if(readFromURL("num")) loadHymn(readFromURL("num")[0]);
+}
 
 //             //
 
@@ -66,19 +91,21 @@ function send(text) {
         if(text[0] == "#") {
             tagActive = true;
             text = text.slice(1).toLowerCase();
-            if(CATEGORY.contains(text)) {
-                addSearchTag(CATEGORY(text).name);
+            if(categoryFoundWithName(text)) {
+                addSearchTag(officialCategoryName(text));
                 $("#searchinput")[0].value = "";
                 send("");
             }
-            if(SUBCATEGORY.contains(text)) {
-                addSearchTag(SUBCATEGORY(text));
+            if(subcategoryFoundWithName(text)) {
+                addSearchTag(officialSubcategoryName(text));
                 $("#searchinput")[0].value = "";
                 send("");
             }
         } else {
             refreshResults(hymnal, text);
         }
+    } else if(category || subcategory) {
+      refreshResults(hymnal, text);
     } else {clearAllResults()}
 
     $("#searchinput")[0].style.color = ((tagActive) ? "#D0021B" : "black"); //9C5B25
@@ -104,7 +131,7 @@ function search(hymnal, query) {
     // Similarity Check. 70%
     for(var i = 0; i < ranks.length; i++) {
         var numberRank = (compare(query, ranks[i].hymn.number)) * 0.56;                             // Number:   } Either Or
-        var titleRank = (compare(query.toLowerCase(), ranks[i].hymn.name.toLowerCase())) * 0.56; // Title:       } @ 40% of 70% = 56%
+        var titleRank = (compare(query.toLowerCase().removeDiacritics(), ranks[i].hymn.name.toLowerCase().removeDiacritics())) * 0.56; // Title:       } @ 40% of 70% = 56%
         ranks[i].rank += (numberRank > titleRank) ? numberRank : titleRank;
     }
        // Content: 20% (14%)
@@ -112,7 +139,7 @@ function search(hymnal, query) {
 
     // Overall Popularity. 20%
     for(var i = 0; i < ranks.length; i++) {
-        ranks[i].rank += 20; // To be compiled
+        ranks[i].rank += 32; // To be compiled
     }
 
 
@@ -222,15 +249,15 @@ function weakRanks(element) {
 // UI UPDATES //
 
 function addSearchTag(tagName) {
-    if(CATEGORY.contains(tagName)) {
+    if(categoryFoundWithName(tagName)) {
         if(category != null) removeSearchTag(category);
         category = tagName;
-        if(subcategory != null) if(CATEGORY(category).contains(subcategory) == -1) removeSearchTag(subcategory);
+        if(subcategory != null) if(!categoryHolds(category, subcategory)) removeSearchTag(subcategory);
     }
-    if(SUBCATEGORY.contains(tagName)) {
+    if(subcategoryFoundWithName(tagName)) {
         if(subcategory != null) removeSearchTag(subcategory);
         subcategory = tagName;
-        if(category != null) if(CATEGORY(category).contains(subcategory) == -1) removeSearchTag(category);
+        if(category != null) if(!categoryHolds(category, subcategory)) removeSearchTag(category);
     }
 
     var span = ce("span");
@@ -250,13 +277,13 @@ function addSearchTag(tagName) {
 }
 
 function removeSearchTag(tagName) {
-    if(CATEGORY.contains(tagName)) type = CATEGORY;
-    if(SUBCATEGORY.contains(tagName)) type = SUBCATEGORY;
+    if(categoryFoundWithName(tagName)) type = "category";
+    if(subcategoryFoundWithName(tagName)) type = "subcategory";
     switch(type) {
-        case CATEGORY:
+        case "category":
             category =  null;
             break;
-        case SUBCATEGORY:
+        case "subcategory":
             subcategory = null;
             break;
         default:
@@ -342,7 +369,7 @@ function predict() {
     var optionText = childSelected.getElementsByTagName("span")[1].textContent;
     var userInputText = searchInput.value;
     if(userInputText.length != 0) {
-        if(userInputText.toLowerCase() == optionText.substr(0, userInputText.length).toLowerCase()) {
+        if(userInputText.toLowerCase().removeDiacritics() == optionText.substr(0, userInputText.length).toLowerCase().removeDiacritics()) {
             var newText = userInputText + optionText.substr(userInputText.length);
             setAutocompleteText(newText);
         } else {setAutocompleteText("");}
@@ -358,11 +385,11 @@ function getAutocompleteText() {
 }
 
 function highlightSimilarities(hymname) {
-    var searchText = searchInput.value.toLowerCase();
+    var searchText = searchInput.value.toLowerCase().removeDiacritics();
     var c = 0;
     var resultHTML = "";
     for(var i = 0; i < hymname.length; i++) {
-        if(hymname[i].toLowerCase() == searchText[c]) {
+        if(hymname[i].toLowerCase().removeDiacritics() == searchText[c]) {
             resultHTML = resultHTML + "<b>" + hymname[i] + "</b>";
             c++;
         } else {
@@ -528,13 +555,13 @@ function lyricsFromHymn(hymn) {
 
     lyrics.push({number: ("#" + hymn.number), name: hymn.name}); //for title slide
 
-    if(hymn.verse) {
+    if(hymn.verses) {
         if(hymn.other) lyrics[0].note = hymn.other.toString();
         if(hymn.refrain) {
             if(hymn.refrainFirst) {
-                for(var q = 0; q < hymn.verse.length; q++) {
+                for(var q = 0; q < hymn.verses.length; q++) {
                     lyrics.push({title: "Refrain", content: hymn.refrain});
-                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verse[q]});
+                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verses[q]});
                 }
                 if(hymn.last) {
                     lyrics.push({title: "Last Refrain", content: hymn.last});
@@ -542,8 +569,8 @@ function lyricsFromHymn(hymn) {
                     lyrics.push({title: "Refrain", content: hymn.refrain});
                 }
             } else {
-                for(var q = 0; q < hymn.verse.length; q++) {
-                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verse[q]});
+                for(var q = 0; q < hymn.verses.length; q++) {
+                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verses[q]});
                     lyrics.push({title: "Refrain", content: hymn.refrain});
                 }
                 if(hymn.last) {
@@ -551,8 +578,8 @@ function lyricsFromHymn(hymn) {
                 }
             }
         } else {
-            for(var q = 0; q < hymn.verse.length; q++) {
-                lyrics.push({title: "Verse " + (q + 1), content: hymn.verse[q]});
+            for(var q = 0; q < hymn.verses.length; q++) {
+                lyrics.push({title: "Verse " + (q + 1), content: hymn.verses[q]});
             }
         }
     } else if(hymn.other) {
@@ -565,6 +592,9 @@ function lyricsFromHymn(hymn) {
             }
         }
     }
+
+    sud = lyrics
+
     return lyrics;
 }
 
@@ -982,11 +1012,13 @@ function writeToURL(key, value) {
     } else {
         window.history.pushState({}, title, "?" + key + "=" + value);
     }
+    
+
 }
 
 function readFromURL(key) {
-    var parameter = parseURLParams(window.location.toString());
-    if(parameter) return eval("parameter." + key + ".toString()");
+    var parameters = parseURLParams(window.location.toString());
+    if(parameters) parameters[key];
     return null;
 }
 
@@ -1017,7 +1049,7 @@ function parseURLParams(url) {
 }
 
 function clearURL() {
-    window.history.pushState({}, pageTitle, "index.html");
+    window.history.pushState({}, pageTitle, "/");
 }
 
 
