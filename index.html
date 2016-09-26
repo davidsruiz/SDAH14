@@ -45,7 +45,7 @@
                                 <!--span id="tags"><span class="searchtag"></span></span>-->
                                 <span id="searchtext">
                                     <span id="autocomplete"></span>
-                                    <input id="searchinput" type="text" placeholder="Hymn name or number" onfocus="send(this.value)" oninput="send(this.value)" autocorrect="false" autocomplete="off" />
+                                    <input id="searchinput" type="text" placeholder="" onfocus="send(this.value)" oninput="send(this.value)" autocorrect="false" autocomplete="off" />
                                 </span>
                             </div>
                         </div><div id="submitbutton" onclick="choose()"><img id="submiticon" src="resources/images/submit.svg" draggable="false"/></div>
@@ -67,14 +67,14 @@
         <section id="welcomelayer" onclick="hideLayer(this)">
             <div id="organizationelements">
                 <img src="resources/images/WhiteSDALogo.svg" draggable="false" /><br/>
-                <span>A Seventh Day Adventist Hymnal</span>
+                <span id="welcome-message"></span>
             </div>
         </section>
         <section id="extraslayer" onclick="fadeOutLayer(this)">
             <div id="infopageelements">
                 <div id="infopageheader">About</div>
                 <div id="infopagecontent">
-<p>
+<p id="about-section-body">
   Daily, we use sites and services that exceed our expectations in features and functionality
   as companies around the world pour time and investment into the technological future of
   our society. Yet most of the content we come across rarely has an impact on our lives for
@@ -82,8 +82,7 @@
   sites that get the job done just don't inspire or unite. This site was born out of necessity to have
   an accesible hymnal on every screen, and to further the outreach of the word to every part of
   the world.
-</p>
-<p>
+
   Welcome to the number one Adventist Hymnal on the web!
   Designed to replace the physical hymnal using by means of speed, availablily, and portability.
   Share the site to spread the love. And remember to sing!
@@ -93,9 +92,10 @@
   <br>
   <br>
   <br>
-  This hymnal was imagined, planned and created (with &#9825; and JS) by <a href="http://davidsruiz.com" title="website">David Ruiz</a>
+  <span id="about-section-footer-1"> This hymnal was imagined, planned and created (with &#9825; and JS) by </span>
+  <a href="http://davidsruiz.com" title="website">David Ruiz</a>
   <br>
-  Feedback is welcome at
+  <span id="about-section-footer-2"></span>
   <a href="mailto:contact@davidsruiz.com" title="email">contact@davidsruiz.com</a>
 </p>
 

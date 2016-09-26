@@ -11,8 +11,7 @@ var minimumRankValue = 30;
 var highlighted;
 var searchInput = $("#searchinput")[0];
 
-var pageTitle = "Seventh-Day Adventist Hymnal";
-$("title")[0].textContent = pageTitle;
+var pageTitle;
 
 // FIRST TIME VISIT //
 
@@ -711,7 +710,7 @@ function quitSlide() {
     fadeOutLayer($("section#slidelayer")[0]);
     clearURL();
     searchInput.focus();
-    searchInput.select();
+    searchInput.setSelectionRange(0, 1000);
 }
 
 function resetSlideNavigation() {
@@ -878,12 +877,11 @@ function reset() {
 
 //                    //
 
-// SERVER //
+// PAGE HISTORY //
 
-function writeToServer(number, lang) {
-    var xmlhttp=new XMLHttpRequest();
-    xmlhttp.open("GET", "writepop.php?num="+number+"&lang="+lang,true);
-    xmlhttp.send();
+function pushStatePageHistory(title, url) {
+  window.history.pushState({}, "", url);
+  document.title = title;
 }
 
 
@@ -1020,7 +1018,7 @@ function writeToURL(key, value) {
       }
     }
     url_str = "?" + url_str
-    window.history.pushState({}, titleFromURL(present_parameters), url_str);
+    pushStatePageHistory(titleFromURL(present_parameters), url_str);
 }
 
 function readFromURL(key) {
@@ -1055,7 +1053,7 @@ function parseURLParams(url) {
 }
 
 function clearURL() {
-    window.history.pushState({}, pageTitle, location.pathname);
+    pushStatePageHistory(pageTitle, location.pathname);
 }
 
 function clearURLKey(key) {
@@ -1071,12 +1069,12 @@ function clearURLKey(key) {
       url_str = url_str + key + "=" + value + "&"
     }
   }
-  window.history.pushState({}, titleFromURL(present_parameters), url_str);
+  pushStatePageHistory({}, titleFromURL(present_parameters), url_str);
 }
 
 function titleFromURL(present_parameters) {
   if(!present_parameters) present_parameters = parseURLParams(window.location.toString()) || {};
-  return (present_parameters["num"]) ? "SDA Hymn " + present_parameters["num"][0] : pageTitle
+  return (present_parameters["num"]) ? localizationStrings["UI"]["hymn-number"][language] + " " + present_parameters["num"][0] : pageTitle;
 }
 
 function overwriteURLKey(key, value) {
@@ -1147,6 +1145,14 @@ var localizationStrings = {
       "English" : "English",
       "Spanish" : "Español"
     },
+    "page-title" : {
+      "English" : "Seventh-Day Adventist Hymnal",
+      "Spanish" : "Himnario Adventista"
+    },
+    "welcome-message" : {
+      "English" : "A Seventh Day Adventist Hymnal",
+      "Spanish" : "Un Himnario Adventista"
+    },
     "search-prompt" : {
       "English" : "Hymn name or number",
       "Spanish" : "Numero o nombre del himno"
@@ -1162,6 +1168,10 @@ var localizationStrings = {
     "Hymnal" : {
       "English" : "Hymnal",
       "Spanish" : "Himnario"
+    },
+    "hymn-number" : {
+      "English" : "SDA Hymn",
+      "Spanish" : "Himno"
     }
   },
   "Lyrics" : {
@@ -1177,15 +1187,54 @@ var localizationStrings = {
       "English" : "Last Refrain",
       "Spanish" : "Ultimo Coro"
     }
+  },
+  "Content" : {
+    "about-section-title" : {
+      "English" : "About",
+      "Spanish" : "Informacion"
+    },
+    "about-section-body" : {
+      "English" : "\
+      Welcome to the number one Adventist Hymnal on the web!\
+      Designed to replace the physical hymnal using by means of speed, availablily, and portability.\
+      Share the site to spread the love. And remember to sing!\
+      Daily, we use sites and services that exceed our expectations in features and functionality\
+      as companies around the world pour time and investment into the technological future of\
+      our society. Yet most of the content we come across rarely has an impact on our lives for\
+      the better. And with quality gap between sacred and secular content growing ever more, current\
+      sites that get the job done just don't inspire or unite. This site was born out of necessity to have\
+      an accesible hymnal on every screen, and to further the outreach of the word to every part of\
+      the world.",
+      "Spanish" : "\
+      Bienvenidos al Himnario Adventista mas preferido en el internet!\
+      Diseñado para remplacar tu himnario de papel siendo rapido, disponibile, y conveniente.",
+    },
+    "about-section-footer-1" : {
+      "English" : "This hymnal was imagined, planned and created (with ♡ and JS) by",
+      "Spanish" : "This hymnal fue imaginado, planeado y diseñado (con ♡ y JS) por"
+    },
+    "about-section-footer-2" : {
+      "English" : "Feedback is welcome at",
+      "Spanish" : "Para contactar, mande mensaje a"
+    }
   }
 };
 
 function localize() {
+  pageTitle = localizationStrings["UI"]["page-title"][language];
+  $("title")[0].textContent = pageTitle;
+
   $('#langselect')[0].textContent = localizationStrings["UI"]["language"][language];
+  $('#welcome-message')[0].textContent = localizationStrings["UI"]["welcome-message"][language];
   $('#set_hymnal_label')[0].textContent = localizationStrings["UI"]["Hymnal"][language];
   $('#searchinput')[0].placeholder = localizationStrings["UI"]["search-prompt"][language];
   $('#about')[0].textContent = localizationStrings["UI"]["about"][language];
   $('#contact')[0].textContent = localizationStrings["UI"]["contact"][language];
+
+  $('#infopageheader')[0].textContent = localizationStrings["Content"]["about-section-title"][language];
+  $('#about-section-body')[0].textContent = localizationStrings["Content"]["about-section-body"][language];
+  $('#about-section-footer-1')[0].textContent = localizationStrings["Content"]["about-section-footer-1"][language];
+  $('#about-section-footer-2')[0].textContent = localizationStrings["Content"]["about-section-footer-2"][language];
 }
 
 //               //
