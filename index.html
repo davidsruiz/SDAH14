@@ -27,12 +27,12 @@
         <section id="searchlayer">
             <header>
                 <div id="headerelements">
-                    <span id="langselect">English</span>
+                    <span id="langselect"></span>
                     <span id="headerdivider"></span>
                     <img id="settingsicon" src="resources/images/settings.svg" selected="false" onclick="settingsmenu.toggle(); event.stopImmediatePropagation()"/>
                     <div id="settingsmenu" class="popup" active="false">
-                        <row>Language: <span class="UI_DROP" options="English">English</span></row>
-                        <row>Hymnal: <span class="UI_DROP" options="1985 version">1985 version</span></row>
+                        <row>Hymnal: <span id="set_hymnal" class="UI_DROP" options="English">English</span></row>
+                        <!-- <row>Hymnal: <span class="UI_DROP" options="1985 version">1985 version</span></row> -->
                     </div>
                 </div>
             </header>

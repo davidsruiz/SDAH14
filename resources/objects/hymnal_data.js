@@ -1,5 +1,5 @@
 var HYMNAL_DATA = {
-    "English": {
+    "en": {
         "language": "English",
         "description": "English - 1985",
         "data": [{

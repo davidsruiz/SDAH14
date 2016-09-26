@@ -16,15 +16,9 @@ $("title")[0].textContent = pageTitle;
 
 // FIRST TIME VISIT //
 
-if(typeof(Storage) !== undefined) {
-    try{
-        if(localStorage.getItem("com.sdahymns.first") === null) {
-            showLayerFor($("section#welcomelayer")[0], 2);
-            localStorage.setItem("com.sdahymns.first", false);
-        }
-    } catch (e) {
-        console.info("localStorage is unavailable");
-    }
+if(!getLocalStorageKey("first")) {
+  showLayerFor($("section#welcomelayer")[0], 2);
+  setLocalStorageKey("first", false)
 }
 
 //
@@ -54,30 +48,33 @@ var localizationStrings = {};
 //               //
 
 // ON URL DATA //
-
+var hymnal;
 window.onload = function () {
-
-  if(readFromURL("h")) {
-
-  } else if(typeof(Storage) !== undefined) {
-      try{
-          if(localStorage.getItem("com.sdahymns.lang") !== null) {
-              language = localStorage.getItem("com.sdahymns.lang");
-          } else {
-              language = "English";
-              localStorage.setItem("com.sdahymns.lang", language);
-          }
-      } catch (e) {
-          console.info("localStorage is unavailable");
-      }
+  var hymnal_id, list ;
+  if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
+    setLocalStorageKey("hymnal", hymnal_id);
+  } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
+    overwriteURLKey("h", hymnal_id);
   } else {
-      language = "English";
+    loadHymnal(defaultHymnal)
+    setLocalStorageKey("hymnal", defaultHymnal);
+    overwriteURLKey("h", defaultHymnal);
   }
 
-  var hymnal = data;
+  hymnal = data;
 
   // start hymn
   if(readFromURL("num")) loadHymn(readFromURL("num")[0]);
+
+  // UI
+  var dd = $('#set_hymnal')[0]; // drop down
+  var op = "";
+  for(var id in HYMNAL_DATA) op = op + (op ? ", " : "") + HYMNAL_DATA[id].description + "|" + id;
+  dd.setAttribute('options', op);
+  dd.childNodes[0].textContent = HYMNAL_DATA[hymnal_id].description;
+  dd.onchange = function(new_value) {overwriteURLKey('h', new_value); location.reload()};
+
+  $('#langselect')[0].textContent = language;
 }
 
 //             //
@@ -131,7 +128,7 @@ function search(hymnal, query) {
     // Similarity Check. 70%
     for(var i = 0; i < ranks.length; i++) {
         var numberRank = (compare(query, ranks[i].hymn.number)) * 0.56;                             // Number:   } Either Or
-        var titleRank = (compare(query.toLowerCase().removeDiacritics(), ranks[i].hymn.name.toLowerCase().removeDiacritics())) * 0.56; // Title:       } @ 40% of 70% = 56%
+        var titleRank = (compare(query.toLowerCase().removeDiacritics().removePunctutation(), ranks[i].hymn.name.toLowerCase().removeDiacritics().removePunctutation())) * 0.56; // Title:       } @ 40% of 70% = 56%
         ranks[i].rank += (numberRank > titleRank) ? numberRank : titleRank;
     }
        // Content: 20% (14%)
@@ -144,20 +141,37 @@ function search(hymnal, query) {
 
 
     // History. 10%
-    if(typeof(Storage) !== undefined) {
-        if(localStorage.getItem("com.sdahymns.history") !== null) {
-            var rawtext = localStorage.getItem("com.sdahymns.history");
-            var recent = rawtext.split(" ");
-            for(var i = 0; i < ranks.length; i++) {
-                var occurences = 0;
-                for(var j = 0; j < recent.length; j++) {
-                    if(ranks[i].hymn.number == recent[j]) occurences++;
-                }
-                ranks[i].rank += f1(occurences);
-            }
-
+    var str = getLocalStorageKey("history");
+    if(str) {
+      var obj = JSON.parse(str)
+      if(obj) {
+        var list = obj[hymnal_id];
+        if(list) {
+          var occurences = {};
+          for(var j = 0; j < list.length; j++) {
+            if(!occurences[list[j]]) occurences[list[j]] = 0;
+            occurences[list[j]]++;
+          }
+          for(var key in occurences) {
+            if(ranks[key]) ranks[key].rank += f1(occurences[key]);
+          }
         }
+      }
     }
+    // if(typeof(Storage) !== undefined) {
+    //     if(localStorage.getItem("com.sdahymns.history") !== null) {
+    //         var rawtext = localStorage.getItem("com.sdahymns.history");
+    //         var recent = rawtext.split(" ");
+    //         for(var i = 0; i < ranks.length; i++) {
+    //             var occurences = 0;
+    //             for(var j = 0; j < recent.length; j++) {
+    //                 if(ranks[i].hymn.number == recent[j]) occurences++;
+    //             }
+    //             ranks[i].rank += f1(occurences);
+    //         }
+    //
+    //     }
+    // }
 
     ranks.sort(compareRanks);
     //sortByRank(ranks);
@@ -835,16 +849,21 @@ document.addEventListener("click", function(e) {
 // HISTORY MANAGEMENT //
 
 function addToHistory(number) {
-    if(typeof(Storage) !== undefined) {
-        var historyKey = "com.sdahymns.history";
-        try{
-            if(localStorage.getItem(historyKey) == null) localStorage.setItem(historyKey, "");
-            var str = localStorage.getItem(historyKey) + " " + number;
-            localStorage.setItem(historyKey, str.trim());
-        } catch (e) {
-            console.info("localStorage is unavailable");
-        }
-    }
+  var historyKey = "history";
+  var stored = JSON.parse(getLocalStorageKey(historyKey) || "{}");
+  var list = stored[hymnal_id] = stored[hymnal_id] || [];
+  list.push(number);
+  setLocalStorageKey(historyKey, JSON.stringify(stored))
+
+    // if(typeof(Storage) !== undefined) {
+    //     try{
+    //         if(localStorage.getItem(historyKey) == null) localStorage.setItem(historyKey, "");
+    //         var str = localStorage.getItem(historyKey) + " " + number;
+    //         localStorage.setItem(historyKey, str.trim());
+    //     } catch (e) {
+    //         console.info("localStorage is unavailable");
+    //     }
+    // }
 }
 
 function cleanupHistory(max) {
@@ -868,13 +887,13 @@ function cleanupHistory(max) {
 }
 
 function clearHistory() {
-    localStorage.removeItem("com.sdahymns.history");
+    localStorage.removeItem("history");
 }
 
 function reset() {
-    localStorage.removeItem("com.sdahymns.history");
-    localStorage.removeItem("com.sdahymns.lang");
-    localStorage.removeItem("com.sdahymns.first");
+    localStorage.removeItem("history");
+    localStorage.removeItem("hymnal");
+    localStorage.removeItem("first");
 }
 
 //                    //
@@ -1026,8 +1045,7 @@ function writeToURL(key, value) {
 
 function readFromURL(key) {
     var parameters = parseURLParams(window.location.toString());
-    if(parameters) parameters[key];
-    return null;
+    if(parameters) return parameters[key];
 }
 
 // from https://stackoverflow.com/questions/814613/
@@ -1062,6 +1080,7 @@ function clearURL() {
 
 function clearURLKey(key) {
   var present_parameters = parseURLParams(window.location.toString());
+  if(!present_parameters) return;
 
   // the remove part
   delete present_parameters[key];
@@ -1080,8 +1099,42 @@ function titleFromURL(present_parameters) {
   return (present_parameters["num"]) ? "SDA Hymn " + present_parameters["num"][0] : pageTitle
 }
 
+function overwriteURLKey(key, value) {
+  clearURLKey(key);
+  writeToURL(key, value);
+}
+
 
 //          //
+
+// LOCALSTORAGE DATA //
+
+function getLocalStorageKey(key) {
+  if(localStorageAvailable()) {
+    try{
+      return localStorage.getItem(key) || undefined
+    } catch (e) {
+      console.info("localStorage get unavailable");
+    }
+  }
+}
+function setLocalStorageKey(key, value) {
+  if(localStorageAvailable()) {
+    try{
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.info("localStorage set unavailable");
+      return false;
+    }
+  }
+}
+
+function localStorageAvailable() {
+  return typeof(Storage) !== undefined;
+}
+
+//                   //
 
 // INFOPAGES //
 

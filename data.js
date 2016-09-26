@@ -27,11 +27,15 @@ String.prototype.removePunctutation = function() {
 }
 
 // LOAD HYMNAL !!
-var hymnal, data, categories;
-function loadHymnal(hymnal_id) {
-  hymnal = HYMNAL_DATA[hymnal_id]; // e.g. "en", "sp2010", "sp1960"
+var defaultHymnal = "en";
+var hymnal, data, categories, language, hymnal_id;
+function loadHymnal(id) {
+  if(!(hymnal = HYMNAL_DATA[id])) return false; // e.g. "en", "sp2010", "sp1960"
+  hymnal_id = id;
   data = hymnal.data;
   categories = hymnal.categories;
+  language = hymnal.language;
+  return true;
 }
 //             !!
 
