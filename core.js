@@ -26,15 +26,8 @@ if(!getLocalStorageKey("first")) {
 
 // ON URL DATA //
 var hymnal;
-window.onload = function () {
-  waitingLoop()
-}
+window.onload = function () { setup() }
 
-function waitingLoop() {
-  if(HYMNAL_DATA) {
-    setup()
-  } else { setTimeout(function() { waitingLoop() }, 50) }
-}
 
 function setup() {
 
@@ -59,7 +52,7 @@ function setup() {
     var op = "";
     for(var id in HYMNAL_DATA) op = op + (op ? ", " : "") + HYMNAL_DATA[id].description + "|" + id;
     dd.setAttribute('options', op);
-    dd.childNodes[0].textContent = HYMNAL_DATA[hymnal_id].description;
+    dd.childNodes[0].textContent = HYMNAL_DATA[loaded_hymnal_id].description;
     dd.onchange = function(new_value) {overwriteURLKey('h', new_value); location.reload()};
 
     localize();
@@ -133,7 +126,7 @@ function search(hymnal, query) {
     if(str) {
       var obj = JSON.parse(str)
       if(obj) {
-        var list = obj[hymnal_id];
+        var list = obj[loaded_hymnal_id];
         if(list) {
           var occurences = {};
           for(var j = 0; j < list.length; j++) {
@@ -841,7 +834,7 @@ document.addEventListener("click", function(e) {
 function addToHistory(number) {
   var historyKey = "history";
   var stored = JSON.parse(getLocalStorageKey(historyKey) || "{}");
-  var list = stored[hymnal_id] = stored[hymnal_id] || [];
+  var list = stored[loaded_hymnal_id] = stored[loaded_hymnal_id] || [];
   list.push(number);
   setLocalStorageKey(historyKey, JSON.stringify(stored))
 
@@ -1024,7 +1017,7 @@ function writeToURL(key, value) {
     // sets a new history with updated params
     var url_str = "";
     for(var key in present_parameters) {
-      for(let value of present_parameters[key]) {
+      for(var value of present_parameters[key]) {
         url_str = url_str + (url_str ? "&" : "") + key + "=" + value
       }
     }
@@ -1076,7 +1069,7 @@ function clearURLKey(key) {
 
   var url_str = "?";
   for(var key in present_parameters) {
-    for(let value of present_parameters[key]) {
+    for(var value of present_parameters[key]) {
       url_str = url_str + key + "=" + value + "&"
     }
   }

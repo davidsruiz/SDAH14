@@ -28,10 +28,10 @@ String.prototype.removePunctutation = function() {
 
 // LOAD HYMNAL !!
 var defaultHymnal = "en";
-var hymnal, data, categories, language, hymnal_id;
+var hymnal, data, categories, language, loaded_hymnal_id;
 function loadHymnal(id) {
   if(!(hymnal = HYMNAL_DATA[id])) return false; // e.g. "en", "sp2010", "sp1960"
-  hymnal_id = id;
+  loaded_hymnal_id = id;
   data = hymnal.data;
   categories = hymnal.categories;
   language = hymnal.language;
