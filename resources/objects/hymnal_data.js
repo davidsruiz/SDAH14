@@ -4487,7 +4487,7 @@ var HYMNAL_DATA = {
     },
     "sp2010": {
         "language": "Spanish",
-        "description": "Spanish - 2010",
+        "description": "Español - 2010",
         "data": [{
             "name": "¡Hosanna!",
             "number": "6",

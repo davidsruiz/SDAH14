@@ -113,8 +113,8 @@ function officialSubcategoryName(informal) {
 function categoryHolds(category, subcategory) {
   if(!category || !subcategory) return false;
   var cat_index = categories.main[1].indexOf(category);
-  var sub_index = categories.sub[1].indexOf(category);
-  var sub_upper_limit = categories.sub[0][sub_index+1], cat_upper_limit = categories.main[cat_index+1], cat_lower_limit = categories.main[cat_index]
+  var sub_index = categories.sub[1].indexOf(subcategory);
+  var sub_upper_limit = categories.sub[0][sub_index+1], cat_upper_limit = categories.main[0][cat_index+1], cat_lower_limit = categories.main[0][cat_index]
   return (sub_upper_limit) > (cat_lower_limit) && (sub_upper_limit) <= (cat_upper_limit)
 }
 

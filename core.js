@@ -23,29 +23,7 @@ if(!getLocalStorageKey("first")) {
 
 //
 
-// LOAD LANGUAGE //
-var language;
 
-var localizationStrings = {};
-
-// if(typeof(Storage) !== undefined) {
-//     try{
-//         if(localStorage.getItem("com.sdahymns.lang") !== null) {
-//             language = localStorage.getItem("com.sdahymns.lang");
-//         } else {
-//             language = "English";
-//             localStorage.setItem("com.sdahymns.lang", language);
-//         }
-//     } catch (e) {
-//         console.info("localStorage is unavailable");
-//     }
-// } else {
-//     language = "English";
-// }
-//
-// var hymnal = data;
-
-//               //
 
 // ON URL DATA //
 var hymnal;
@@ -74,7 +52,7 @@ window.onload = function () {
   dd.childNodes[0].textContent = HYMNAL_DATA[hymnal_id].description;
   dd.onchange = function(new_value) {overwriteURLKey('h', new_value); location.reload()};
 
-  $('#langselect')[0].textContent = language;
+  localize();
 }
 
 //             //
@@ -287,7 +265,8 @@ function addSearchTag(tagName) {
     span.appendChild(img);
     $("span#tags")[0].appendChild(span);
 
-    refreshResults(hymnal, $("#searchinput")[0].value);
+    // refreshResults(hymnal, $("#searchinput")[0].value);
+    $('#searchinput')[0].focus();
 }
 
 function removeSearchTag(tagName) {
@@ -311,7 +290,8 @@ function removeSearchTag(tagName) {
             tagFound = true;
         }
     }
-    refreshResults(hymnal, $("#searchinput")[0].value);
+    // refreshResults(hymnal, $("#searchinput")[0].value);
+    $('#searchinput')[0].focus();
     return tagFound;
 }
 
@@ -574,18 +554,18 @@ function lyricsFromHymn(hymn) {
         if(hymn.refrain) {
             if(hymn.refrainFirst) {
                 for(var q = 0; q < hymn.verses.length; q++) {
-                    lyrics.push({title: "Refrain", content: hymn.refrain});
-                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verses[q]});
+                    lyrics.push({title: localizationStrings["Lyrics"]["refrain"][language], content: hymn.refrain});
+                    lyrics.push({title: localizationStrings["Lyrics"]["verse"][language] + " " + (q + 1), content: hymn.verses[q]});
                 }
                 if(hymn.last) {
-                    lyrics.push({title: "Last Refrain", content: hymn.last});
+                    lyrics.push({title: localizationStrings["Lyrics"]["last-refrain"][language], content: hymn.last});
                 } else {
-                    lyrics.push({title: "Refrain", content: hymn.refrain});
+                    lyrics.push({title: localizationStrings["Lyrics"]["refrain"][language], content: hymn.refrain});
                 }
             } else {
                 for(var q = 0; q < hymn.verses.length; q++) {
-                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verses[q]});
-                    lyrics.push({title: "Refrain", content: hymn.refrain});
+                    lyrics.push({title: localizationStrings["Lyrics"]["verse"][language] + " " + (q + 1), content: hymn.verses[q]});
+                    lyrics.push({title: localizationStrings["Lyrics"]["refrain"][language], content: hymn.refrain});
                 }
                 if(hymn.last) {
                     lyrics.lastChild().content = hymn.last;
@@ -593,7 +573,7 @@ function lyricsFromHymn(hymn) {
             }
         } else {
             for(var q = 0; q < hymn.verses.length; q++) {
-                lyrics.push({title: "Verse " + (q + 1), content: hymn.verses[q]});
+                lyrics.push({title: localizationStrings["Lyrics"]["verse"][language] + " " + (q + 1), content: hymn.verses[q]});
             }
         }
     } else if(hymn.other) {
@@ -937,13 +917,13 @@ function createInfobox(number) {
 
     var categoryRow = ce("tr");
     var Cword = ce("td");
-    Cword.textContent = "Main Category:";
+    Cword.textContent = localizationStrings["UI"]["info-main-category"][language] + ":";
     var Cdef = ce("td");
     Cdef.appendChild(newCTag(hymn));
 
     var subcategoryRow = ce("tr");
     var Sword = ce("td");
-    Sword.textContent = "Sub Category:";
+    Sword.textContent = localizationStrings["UI"]["info-sub-category"][language] + ":";
     var Sdef = ce("td");
     Sdef.appendChild(newSTag(hymn));
 
@@ -1158,6 +1138,57 @@ function loadInfopage(name) {
 
 
 //           //
+
+// LANGUAGE AND LOCALIZATION //
+
+var localizationStrings = {
+  "UI": {
+    "language" : {
+      "English" : "English",
+      "Spanish" : "Español"
+    },
+    "search-prompt" : {
+      "English" : "Hymn name or number",
+      "Spanish" : "Numero o nombre del himno"
+    },
+    "about" : {
+      "English" : "about",
+      "Spanish" : "informacion"
+    },
+    "contact" : {
+      "English" : "contact",
+      "Spanish" : "contacto"
+    },
+    "Hymnal" : {
+      "English" : "Hymnal",
+      "Spanish" : "Himnario"
+    }
+  },
+  "Lyrics" : {
+    "verse" : {
+      "English" : "Verse",
+      "Spanish" : "Verso"
+    },
+    "refrain" : {
+      "English" : "Refrain",
+      "Spanish" : "Coro"
+    },
+    "last-refrain" : {
+      "English" : "Last Refrain",
+      "Spanish" : "Ultimo Coro"
+    }
+  }
+};
+
+function localize() {
+  $('#langselect')[0].textContent = localizationStrings["UI"]["language"][language];
+  $('#set_hymnal_label')[0].textContent = localizationStrings["UI"]["Hymnal"][language];
+  $('#searchinput')[0].placeholder = localizationStrings["UI"]["search-prompt"][language];
+  $('#about')[0].textContent = localizationStrings["UI"]["about"][language];
+  $('#contact')[0].textContent = localizationStrings["UI"]["contact"][language];
+}
+
+//               //
 
 // OTHER USEFUL FUNCTIONALITY //
 
