@@ -1215,7 +1215,7 @@ var localizationStrings = {
     },
     "about-section-footer-1" : {
       "English" : "This hymnal was imagined, planned and created (with ♡ and JS) by",
-      "Spanish" : "This hymnal fue imaginado, planeado y diseñado (con ♡ y JS) por"
+      "Spanish" : "Este himnario fue imaginado, planeado y diseñado (con ♡ y JS) por"
     },
     "about-section-footer-2" : {
       "English" : "Feedback is welcome at",
