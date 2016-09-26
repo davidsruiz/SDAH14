@@ -1007,13 +1007,21 @@ function newSTag(hymn) {
 
 function writeToURL(key, value) {
     var title = (key == "num") ? "SDA Hymn " + value : pageTitle;
-    if(readFromURL(key)) {
-        window.history.replaceState({}, title, "?" + key + "=" + value);
-    } else {
-        window.history.pushState({}, title, "?" + key + "=" + value);
-    }
-    
 
+    // reads url params, and adds coresponding key+value
+    var present_parameters = parseURLParams(window.location.toString()) || {};
+    var values_for_key = present_parameters[key] = present_parameters[key] || [];
+    values_for_key.push(value);
+
+    // sets a new history with updated params
+    var url_str = "";
+    for(var key in present_parameters) {
+      for(let value of present_parameters[key]) {
+        url_str = url_str + (url_str ? "&" : "") + key + "=" + value
+      }
+    }
+    url_str = "?" + url_str
+    window.history.pushState({}, titleFromURL(present_parameters), url_str);
 }
 
 function readFromURL(key) {
@@ -1049,7 +1057,27 @@ function parseURLParams(url) {
 }
 
 function clearURL() {
-    window.history.pushState({}, pageTitle, "/");
+    window.history.pushState({}, pageTitle, location.pathname);
+}
+
+function clearURLKey(key) {
+  var present_parameters = parseURLParams(window.location.toString());
+
+  // the remove part
+  delete present_parameters[key];
+
+  var url_str = "?";
+  for(var key in present_parameters) {
+    for(let value of present_parameters[key]) {
+      url_str = url_str + key + "=" + value + "&"
+    }
+  }
+  window.history.pushState({}, titleFromURL(present_parameters), url_str);
+}
+
+function titleFromURL(present_parameters) {
+  if(!present_parameters) present_parameters = parseURLParams(window.location.toString()) || {};
+  return (present_parameters["num"]) ? "SDA Hymn " + present_parameters["num"][0] : pageTitle
 }
 
 
