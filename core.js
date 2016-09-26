@@ -121,7 +121,7 @@ function search(hymnal, query) {
     }
 
 
-    // History. 10%
+    // History. 20%
     var str = getLocalStorageKey("history");
     if(str) {
       var obj = JSON.parse(str)
@@ -134,28 +134,13 @@ function search(hymnal, query) {
             occurences[list[j]]++;
           }
           for(var key in occurences) {
-            if(ranks[key]) ranks[key].rank += f1(occurences[key]);
+            if(ranks[key]) ranks[key].rank += f1(occurences[key])*2;
           }
         }
       }
     }
-    // if(typeof(Storage) !== undefined) {
-    //     if(localStorage.getItem("com.sdahymns.history") !== null) {
-    //         var rawtext = localStorage.getItem("com.sdahymns.history");
-    //         var recent = rawtext.split(" ");
-    //         for(var i = 0; i < ranks.length; i++) {
-    //             var occurences = 0;
-    //             for(var j = 0; j < recent.length; j++) {
-    //                 if(ranks[i].hymn.number == recent[j]) occurences++;
-    //             }
-    //             ranks[i].rank += f1(occurences);
-    //         }
-    //
-    //     }
-    // }
 
     ranks.sort(compareRanks);
-    //sortByRank(ranks);
 
     var maxResults = 5;
     ranks = ranks.slice(0, maxResults);
