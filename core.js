@@ -16,44 +16,44 @@ $("title")[0].textContent = pageTitle;
 
 // FIRST TIME VISIT //
 
-if(typeof(Storage) !== undefined) {
-    try{
-        if(localStorage.getItem("com.sdahymns.first") === null) {
-            showLayerFor($("section#welcomelayer")[0], 2);
-            localStorage.setItem("com.sdahymns.first", false);
-        }
-    } catch (e) {
-        console.info("localStorage is unavailable");
-    }
+if(!getLocalStorageKey("first")) {
+  showLayerFor($("section#welcomelayer")[0], 2);
+  setLocalStorageKey("first", false)
 }
 
 //
 
-// LOAD LANGUAGE //
-var language;
 
-if(typeof(Storage) !== undefined) {
-    try{
-        if(localStorage.getItem("com.sdahymns.lang") !== null) {
-            language = localStorage.getItem("com.sdahymns.lang");
-        } else {
-            language = "English";
-            localStorage.setItem("com.sdahymns.lang", language);
-        }
-    } catch (e) {
-        console.info("localStorage is unavailable");
-    }
-} else {
-    language = "English";
-}
-
-var hymnal = data;
-
-//               //
 
 // ON URL DATA //
+var hymnal;
+window.onload = function () {
+  var hymnal_id, list ;
+  if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
+    setLocalStorageKey("hymnal", hymnal_id);
+  } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
+    overwriteURLKey("h", hymnal_id);
+  } else {
+    loadHymnal(defaultHymnal)
+    setLocalStorageKey("hymnal", defaultHymnal);
+    overwriteURLKey("h", defaultHymnal);
+  }
 
-window.onload = function () {if(readFromURL("num")) loadHymn(readFromURL("num"));}
+  hymnal = data;
+
+  // start hymn
+  if(readFromURL("num")) loadHymn(readFromURL("num")[0]);
+
+  // UI
+  var dd = $('#set_hymnal')[0]; // drop down
+  var op = "";
+  for(var id in HYMNAL_DATA) op = op + (op ? ", " : "") + HYMNAL_DATA[id].description + "|" + id;
+  dd.setAttribute('options', op);
+  dd.childNodes[0].textContent = HYMNAL_DATA[hymnal_id].description;
+  dd.onchange = function(new_value) {overwriteURLKey('h', new_value); location.reload()};
+
+  localize();
+}
 
 //             //
 
@@ -66,19 +66,21 @@ function send(text) {
         if(text[0] == "#") {
             tagActive = true;
             text = text.slice(1).toLowerCase();
-            if(CATEGORY.contains(text)) {
-                addSearchTag(CATEGORY(text).name);
+            if(categoryFoundWithName(text)) {
+                addSearchTag(officialCategoryName(text));
                 $("#searchinput")[0].value = "";
                 send("");
             }
-            if(SUBCATEGORY.contains(text)) {
-                addSearchTag(SUBCATEGORY(text));
+            if(subcategoryFoundWithName(text)) {
+                addSearchTag(officialSubcategoryName(text));
                 $("#searchinput")[0].value = "";
                 send("");
             }
         } else {
             refreshResults(hymnal, text);
         }
+    } else if(category || subcategory) {
+      refreshResults(hymnal, text);
     } else {clearAllResults()}
 
     $("#searchinput")[0].style.color = ((tagActive) ? "#D0021B" : "black"); //9C5B25
@@ -104,7 +106,7 @@ function search(hymnal, query) {
     // Similarity Check. 70%
     for(var i = 0; i < ranks.length; i++) {
         var numberRank = (compare(query, ranks[i].hymn.number)) * 0.56;                             // Number:   } Either Or
-        var titleRank = (compare(query.toLowerCase(), ranks[i].hymn.name.toLowerCase())) * 0.56; // Title:       } @ 40% of 70% = 56%
+        var titleRank = (compare(query.toLowerCase().removeDiacritics().removePunctutation(), ranks[i].hymn.name.toLowerCase().removeDiacritics().removePunctutation())) * 0.56; // Title:       } @ 40% of 70% = 56%
         ranks[i].rank += (numberRank > titleRank) ? numberRank : titleRank;
     }
        // Content: 20% (14%)
@@ -112,31 +114,48 @@ function search(hymnal, query) {
 
     // Overall Popularity. 20%
     for(var i = 0; i < ranks.length; i++) {
-        ranks[i].rank += 20; // To be compiled
+        ranks[i].rank += 32; // To be compiled
     }
 
 
     // History. 10%
-    if(typeof(Storage) !== undefined) {
-        if(localStorage.getItem("com.sdahymns.history") !== null) {
-            var rawtext = localStorage.getItem("com.sdahymns.history");
-            var recent = rawtext.split(" ");
-            for(var i = 0; i < ranks.length; i++) {
-                var occurences = 0;
-                for(var j = 0; j < recent.length; j++) {
-                    if(ranks[i].hymn.number == recent[j]) occurences++;
-                }
-                ranks[i].rank += f1(occurences);
-            }
-
+    var str = getLocalStorageKey("history");
+    if(str) {
+      var obj = JSON.parse(str)
+      if(obj) {
+        var list = obj[hymnal_id];
+        if(list) {
+          var occurences = {};
+          for(var j = 0; j < list.length; j++) {
+            if(!occurences[list[j]]) occurences[list[j]] = 0;
+            occurences[list[j]]++;
+          }
+          for(var key in occurences) {
+            if(ranks[key]) ranks[key].rank += f1(occurences[key]);
+          }
         }
+      }
     }
+    // if(typeof(Storage) !== undefined) {
+    //     if(localStorage.getItem("com.sdahymns.history") !== null) {
+    //         var rawtext = localStorage.getItem("com.sdahymns.history");
+    //         var recent = rawtext.split(" ");
+    //         for(var i = 0; i < ranks.length; i++) {
+    //             var occurences = 0;
+    //             for(var j = 0; j < recent.length; j++) {
+    //                 if(ranks[i].hymn.number == recent[j]) occurences++;
+    //             }
+    //             ranks[i].rank += f1(occurences);
+    //         }
+    //
+    //     }
+    // }
 
     ranks.sort(compareRanks);
     //sortByRank(ranks);
 
-    var numberOfResults = 5;
-    ranks = ranks.slice(0, numberOfResults);
+    var maxResults = 5;
+    ranks = ranks.slice(0, maxResults);
 
     return ranks.filter(weakRanks);
 }
@@ -222,15 +241,15 @@ function weakRanks(element) {
 // UI UPDATES //
 
 function addSearchTag(tagName) {
-    if(CATEGORY.contains(tagName)) {
+    if(categoryFoundWithName(tagName)) {
         if(category != null) removeSearchTag(category);
         category = tagName;
-        if(subcategory != null) if(CATEGORY(category).contains(subcategory) == -1) removeSearchTag(subcategory);
+        if(subcategory != null) if(!categoryHolds(category, subcategory)) removeSearchTag(subcategory);
     }
-    if(SUBCATEGORY.contains(tagName)) {
+    if(subcategoryFoundWithName(tagName)) {
         if(subcategory != null) removeSearchTag(subcategory);
         subcategory = tagName;
-        if(category != null) if(CATEGORY(category).contains(subcategory) == -1) removeSearchTag(category);
+        if(category != null) if(!categoryHolds(category, subcategory)) removeSearchTag(category);
     }
 
     var span = ce("span");
@@ -246,17 +265,18 @@ function addSearchTag(tagName) {
     span.appendChild(img);
     $("span#tags")[0].appendChild(span);
 
-    refreshResults(hymnal, $("#searchinput")[0].value);
+    // refreshResults(hymnal, $("#searchinput")[0].value);
+    $('#searchinput')[0].focus();
 }
 
 function removeSearchTag(tagName) {
-    if(CATEGORY.contains(tagName)) type = CATEGORY;
-    if(SUBCATEGORY.contains(tagName)) type = SUBCATEGORY;
+    if(categoryFoundWithName(tagName)) type = "category";
+    if(subcategoryFoundWithName(tagName)) type = "subcategory";
     switch(type) {
-        case CATEGORY:
+        case "category":
             category =  null;
             break;
-        case SUBCATEGORY:
+        case "subcategory":
             subcategory = null;
             break;
         default:
@@ -270,7 +290,8 @@ function removeSearchTag(tagName) {
             tagFound = true;
         }
     }
-    refreshResults(hymnal, $("#searchinput")[0].value);
+    // refreshResults(hymnal, $("#searchinput")[0].value);
+    $('#searchinput')[0].focus();
     return tagFound;
 }
 
@@ -342,7 +363,7 @@ function predict() {
     var optionText = childSelected.getElementsByTagName("span")[1].textContent;
     var userInputText = searchInput.value;
     if(userInputText.length != 0) {
-        if(userInputText.toLowerCase() == optionText.substr(0, userInputText.length).toLowerCase()) {
+        if(userInputText.toLowerCase().removeDiacritics() == optionText.substr(0, userInputText.length).toLowerCase().removeDiacritics()) {
             var newText = userInputText + optionText.substr(userInputText.length);
             setAutocompleteText(newText);
         } else {setAutocompleteText("");}
@@ -358,11 +379,11 @@ function getAutocompleteText() {
 }
 
 function highlightSimilarities(hymname) {
-    var searchText = searchInput.value.toLowerCase();
+    var searchText = searchInput.value.toLowerCase().removeDiacritics();
     var c = 0;
     var resultHTML = "";
     for(var i = 0; i < hymname.length; i++) {
-        if(hymname[i].toLowerCase() == searchText[c]) {
+        if(hymname[i].toLowerCase().removeDiacritics() == searchText[c]) {
             resultHTML = resultHTML + "<b>" + hymname[i] + "</b>";
             c++;
         } else {
@@ -528,31 +549,31 @@ function lyricsFromHymn(hymn) {
 
     lyrics.push({number: ("#" + hymn.number), name: hymn.name}); //for title slide
 
-    if(hymn.verse) {
+    if(hymn.verses) {
         if(hymn.other) lyrics[0].note = hymn.other.toString();
         if(hymn.refrain) {
             if(hymn.refrainFirst) {
-                for(var q = 0; q < hymn.verse.length; q++) {
-                    lyrics.push({title: "Refrain", content: hymn.refrain});
-                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verse[q]});
+                for(var q = 0; q < hymn.verses.length; q++) {
+                    lyrics.push({title: localizationStrings["Lyrics"]["refrain"][language], content: hymn.refrain});
+                    lyrics.push({title: localizationStrings["Lyrics"]["verse"][language] + " " + (q + 1), content: hymn.verses[q]});
                 }
                 if(hymn.last) {
-                    lyrics.push({title: "Last Refrain", content: hymn.last});
+                    lyrics.push({title: localizationStrings["Lyrics"]["last-refrain"][language], content: hymn.last});
                 } else {
-                    lyrics.push({title: "Refrain", content: hymn.refrain});
+                    lyrics.push({title: localizationStrings["Lyrics"]["refrain"][language], content: hymn.refrain});
                 }
             } else {
-                for(var q = 0; q < hymn.verse.length; q++) {
-                    lyrics.push({title: "Verse " + (q + 1), content: hymn.verse[q]});
-                    lyrics.push({title: "Refrain", content: hymn.refrain});
+                for(var q = 0; q < hymn.verses.length; q++) {
+                    lyrics.push({title: localizationStrings["Lyrics"]["verse"][language] + " " + (q + 1), content: hymn.verses[q]});
+                    lyrics.push({title: localizationStrings["Lyrics"]["refrain"][language], content: hymn.refrain});
                 }
                 if(hymn.last) {
                     lyrics.lastChild().content = hymn.last;
                 }
             }
         } else {
-            for(var q = 0; q < hymn.verse.length; q++) {
-                lyrics.push({title: "Verse " + (q + 1), content: hymn.verse[q]});
+            for(var q = 0; q < hymn.verses.length; q++) {
+                lyrics.push({title: localizationStrings["Lyrics"]["verse"][language] + " " + (q + 1), content: hymn.verses[q]});
             }
         }
     } else if(hymn.other) {
@@ -565,6 +586,9 @@ function lyricsFromHymn(hymn) {
             }
         }
     }
+
+    sud = lyrics
+
     return lyrics;
 }
 
@@ -805,16 +829,21 @@ document.addEventListener("click", function(e) {
 // HISTORY MANAGEMENT //
 
 function addToHistory(number) {
-    if(typeof(Storage) !== undefined) {
-        var historyKey = "com.sdahymns.history";
-        try{
-            if(localStorage.getItem(historyKey) == null) localStorage.setItem(historyKey, "");
-            var str = localStorage.getItem(historyKey) + " " + number;
-            localStorage.setItem(historyKey, str.trim());
-        } catch (e) {
-            console.info("localStorage is unavailable");
-        }
-    }
+  var historyKey = "history";
+  var stored = JSON.parse(getLocalStorageKey(historyKey) || "{}");
+  var list = stored[hymnal_id] = stored[hymnal_id] || [];
+  list.push(number);
+  setLocalStorageKey(historyKey, JSON.stringify(stored))
+
+    // if(typeof(Storage) !== undefined) {
+    //     try{
+    //         if(localStorage.getItem(historyKey) == null) localStorage.setItem(historyKey, "");
+    //         var str = localStorage.getItem(historyKey) + " " + number;
+    //         localStorage.setItem(historyKey, str.trim());
+    //     } catch (e) {
+    //         console.info("localStorage is unavailable");
+    //     }
+    // }
 }
 
 function cleanupHistory(max) {
@@ -838,13 +867,13 @@ function cleanupHistory(max) {
 }
 
 function clearHistory() {
-    localStorage.removeItem("com.sdahymns.history");
+    localStorage.removeItem("history");
 }
 
 function reset() {
-    localStorage.removeItem("com.sdahymns.history");
-    localStorage.removeItem("com.sdahymns.lang");
-    localStorage.removeItem("com.sdahymns.first");
+    localStorage.removeItem("history");
+    localStorage.removeItem("hymnal");
+    localStorage.removeItem("first");
 }
 
 //                    //
@@ -888,13 +917,13 @@ function createInfobox(number) {
 
     var categoryRow = ce("tr");
     var Cword = ce("td");
-    Cword.textContent = "Main Category:";
+    Cword.textContent = localizationStrings["UI"]["info-main-category"][language] + ":";
     var Cdef = ce("td");
     Cdef.appendChild(newCTag(hymn));
 
     var subcategoryRow = ce("tr");
     var Sword = ce("td");
-    Sword.textContent = "Sub Category:";
+    Sword.textContent = localizationStrings["UI"]["info-sub-category"][language] + ":";
     var Sdef = ce("td");
     Sdef.appendChild(newSTag(hymn));
 
@@ -977,17 +1006,26 @@ function newSTag(hymn) {
 
 function writeToURL(key, value) {
     var title = (key == "num") ? "SDA Hymn " + value : pageTitle;
-    if(readFromURL(key)) {
-        window.history.replaceState({}, title, "?" + key + "=" + value);
-    } else {
-        window.history.pushState({}, title, "?" + key + "=" + value);
+
+    // reads url params, and adds coresponding key+value
+    var present_parameters = parseURLParams(window.location.toString()) || {};
+    var values_for_key = present_parameters[key] = present_parameters[key] || [];
+    values_for_key.push(value);
+
+    // sets a new history with updated params
+    var url_str = "";
+    for(var key in present_parameters) {
+      for(let value of present_parameters[key]) {
+        url_str = url_str + (url_str ? "&" : "") + key + "=" + value
+      }
     }
+    url_str = "?" + url_str
+    window.history.pushState({}, titleFromURL(present_parameters), url_str);
 }
 
 function readFromURL(key) {
-    var parameter = parseURLParams(window.location.toString());
-    if(parameter) return eval("parameter." + key + ".toString()");
-    return null;
+    var parameters = parseURLParams(window.location.toString());
+    if(parameters) return parameters[key];
 }
 
 // from https://stackoverflow.com/questions/814613/
@@ -1017,11 +1055,66 @@ function parseURLParams(url) {
 }
 
 function clearURL() {
-    window.history.pushState({}, pageTitle, "index.html");
+    window.history.pushState({}, pageTitle, location.pathname);
+}
+
+function clearURLKey(key) {
+  var present_parameters = parseURLParams(window.location.toString());
+  if(!present_parameters) return;
+
+  // the remove part
+  delete present_parameters[key];
+
+  var url_str = "?";
+  for(var key in present_parameters) {
+    for(let value of present_parameters[key]) {
+      url_str = url_str + key + "=" + value + "&"
+    }
+  }
+  window.history.pushState({}, titleFromURL(present_parameters), url_str);
+}
+
+function titleFromURL(present_parameters) {
+  if(!present_parameters) present_parameters = parseURLParams(window.location.toString()) || {};
+  return (present_parameters["num"]) ? "SDA Hymn " + present_parameters["num"][0] : pageTitle
+}
+
+function overwriteURLKey(key, value) {
+  clearURLKey(key);
+  writeToURL(key, value);
 }
 
 
 //          //
+
+// LOCALSTORAGE DATA //
+
+function getLocalStorageKey(key) {
+  if(localStorageAvailable()) {
+    try{
+      return localStorage.getItem(key) || undefined
+    } catch (e) {
+      console.info("localStorage get unavailable");
+    }
+  }
+}
+function setLocalStorageKey(key, value) {
+  if(localStorageAvailable()) {
+    try{
+      localStorage.setItem(key, value);
+      return true;
+    } catch (e) {
+      console.info("localStorage set unavailable");
+      return false;
+    }
+  }
+}
+
+function localStorageAvailable() {
+  return typeof(Storage) !== undefined;
+}
+
+//                   //
 
 // INFOPAGES //
 
@@ -1045,6 +1138,57 @@ function loadInfopage(name) {
 
 
 //           //
+
+// LANGUAGE AND LOCALIZATION //
+
+var localizationStrings = {
+  "UI": {
+    "language" : {
+      "English" : "English",
+      "Spanish" : "Español"
+    },
+    "search-prompt" : {
+      "English" : "Hymn name or number",
+      "Spanish" : "Numero o nombre del himno"
+    },
+    "about" : {
+      "English" : "about",
+      "Spanish" : "informacion"
+    },
+    "contact" : {
+      "English" : "contact",
+      "Spanish" : "contacto"
+    },
+    "Hymnal" : {
+      "English" : "Hymnal",
+      "Spanish" : "Himnario"
+    }
+  },
+  "Lyrics" : {
+    "verse" : {
+      "English" : "Verse",
+      "Spanish" : "Verso"
+    },
+    "refrain" : {
+      "English" : "Refrain",
+      "Spanish" : "Coro"
+    },
+    "last-refrain" : {
+      "English" : "Last Refrain",
+      "Spanish" : "Ultimo Coro"
+    }
+  }
+};
+
+function localize() {
+  $('#langselect')[0].textContent = localizationStrings["UI"]["language"][language];
+  $('#set_hymnal_label')[0].textContent = localizationStrings["UI"]["Hymnal"][language];
+  $('#searchinput')[0].placeholder = localizationStrings["UI"]["search-prompt"][language];
+  $('#about')[0].textContent = localizationStrings["UI"]["about"][language];
+  $('#contact')[0].textContent = localizationStrings["UI"]["contact"][language];
+}
+
+//               //
 
 // OTHER USEFUL FUNCTIONALITY //
 

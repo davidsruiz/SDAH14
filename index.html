@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Seventh-Day Adventist Hymnal</title>
+        <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, user-scalable=no, maximum-scale=1">
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -26,12 +27,12 @@
         <section id="searchlayer">
             <header>
                 <div id="headerelements">
-                    <span id="langselect">English</span>
+                    <span id="langselect"></span>
                     <span id="headerdivider"></span>
                     <img id="settingsicon" src="resources/images/settings.svg" selected="false" onclick="settingsmenu.toggle(); event.stopImmediatePropagation()"/>
                     <div id="settingsmenu" class="popup" active="false">
-                        <row>Language: <span class="UI_DROP" options="English">English</span></row>
-                        <row>Hymnal: <span class="UI_DROP" options="1985 version">1985 version</span></row>
+                        <row><span id="set_hymnal_label">Hymnal</span>: <span id="set_hymnal" class="UI_DROP" options="English">English</span></row>
+                        <!-- <row>Hymnal: <span class="UI_DROP" options="1985 version">1985 version</span></row> -->
                     </div>
                 </div>
             </header>
@@ -58,8 +59,8 @@
                 <div id="footerelements">
                     <!-- <span>feedback</span><span>about</span><span>resources</span> -->
                     <!-- <span>feedback</span> -->
-                    <span onclick="fadeInLayer($('#extraslayer')[0])">about</span>
-                    <a href="mailto:contact@davidsruiz.com"><span>contact</span></a>
+                    <span id="about" onclick="fadeInLayer($('#extraslayer')[0])">about</span>
+                    <a href="mailto:contact@davidsruiz.com"><span id="contact">contact</span></a>
                 </div>
             </footer>
         </section>
