@@ -35,7 +35,7 @@ function setup() {
     if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
       setLocalStorageKey("hymnal", hymnal_id);
     } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
-      overwriteURLKey("h", hymnal_id);
+      // overwriteURLKey("h", hymnal_id);
     } else {
       loadHymnal(defaultHymnal)
       setLocalStorageKey("hymnal", defaultHymnal);
@@ -1145,8 +1145,8 @@ var localizationStrings = {
       "Spanish" : "Un Himnario Adventista"
     },
     "search-prompt" : {
-      "English" : "Hymn name or number",
-      "Spanish" : "Numero o nombre del himno"
+      "English" : "Hymn title or number",
+      "Spanish" : "Numero o titulo del himno"
     },
     "about" : {
       "English" : "about",
