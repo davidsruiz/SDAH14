@@ -1146,11 +1146,11 @@ var localizationStrings = {
     },
     "search-prompt" : {
       "English" : "Hymn title or number",
-      "Spanish" : "Numero o titulo del himno"
+      "Spanish" : "Número o tíulo del himno"
     },
     "about" : {
       "English" : "about",
-      "Spanish" : "informacion"
+      "Spanish" : "infórmacion"
     },
     "contact" : {
       "English" : "contact",
@@ -1190,7 +1190,7 @@ var localizationStrings = {
   "Content" : {
     "about-section-title" : {
       "English" : "About",
-      "Spanish" : "Informacion"
+      "Spanish" : "Infórmacion"
     },
     "about-section-body" : {
       "English" : "\
@@ -1206,7 +1206,7 @@ var localizationStrings = {
       the world.",
       "Spanish" : "\
       Bienvenidos al Himnario Adventista mas preferido en el internet!\
-      Diseñado para remplacar tu himnario de papel siendo rapido, disponibile, y conveniente.",
+      Diseñado para remplazar tu himnario de papel siendo rápido, disponibile, y conveniente.",
     },
     "about-section-footer-1" : {
       "English" : "This hymnal was imagined, planned and created (with ♡ and JS) by",
