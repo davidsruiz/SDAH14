@@ -487,18 +487,18 @@ document.addEventListener("keydown", function (e) {
     } else
     if(mode == modeType.slide) {
         switch(code) {
+            case 33: // pg up
             case 37: // left arrow
+            case 38: // up arrow
                 previousSlide();
                 break;
-            case 39: // right arrow
-                nextSlide();
-                break;
             case 32: // spacebar
+            case 34: // pg dwn
+            case 39: // right arrow
+            case 40: // down arrow
                 nextSlide();
                 break;
             case 27: // escape key
-                quitSlide();
-                break;
             case 35: // end key
                 quitSlide();
                 break;
