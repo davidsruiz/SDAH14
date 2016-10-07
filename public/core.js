@@ -7,6 +7,7 @@ var category = null;
 var subcategory = null;
 
 var minimumRankValue = 30;
+var rankOffset = 20;
 
 var highlighted;
 var searchInput = $("#searchinput")[0];
@@ -107,21 +108,22 @@ function search(hymnal, query) {
     if(subcategory !== null) ranks = ranks.filter(isS);
 
     // Similarity Check. 70%
+    // var wt = 0.7; var wt1 = 0.8 * wt; var wt2 = 0.2 * wt; // Number or Title: 80% (56%)
     for(var i = 0; i < ranks.length; i++) {
-        var numberRank = (compare(query, ranks[i].hymn.number)) * 0.56;                             // Number:   } Either Or
-        var titleRank = (compare(query.toLowerCase().removeDiacritics().removePunctutation(), ranks[i].hymn.name.toLowerCase().removeDiacritics().removePunctutation())) * 0.56; // Title:       } @ 40% of 70% = 56%
+        var numberRank = (compare(query, ranks[i].hymn.number)) * 0.7;
+        var titleRank  = (compare(query.toLowerCase().removeDiacritics().removePunctutation(), ranks[i].hymn.name.toLowerCase().removeDiacritics().removePunctutation())) * 0.7;
         ranks[i].rank += (numberRank > titleRank) ? numberRank : titleRank;
     }
-       // Content: 20% (14%)
-        // Not computed "on the fly" to save memory
+      // Content: 20% (14%)
+        // Not computed "on the fly" to save memory, should be indexed
 
     // Overall Popularity. 20%
+    var freq;
     for(var i = 0; i < ranks.length; i++) {
-        ranks[i].rank += 32; // To be compiled
+        if(freq = database[loaded_hymnal_id][ranks[i].hymn.number]) { ranks[i].rank += f2(freq);log(`hymn ${ranks[i].hymn.number} freq ${freq} weight ${f2(freq)}`)}
     }
 
-
-    // History. 20%
+    // History. 10%
     var str = getLocalStorageKey("history");
     if(str) {
       var obj = JSON.parse(str)
@@ -134,7 +136,7 @@ function search(hymnal, query) {
             occurences[list[j]]++;
           }
           for(var key in occurences) {
-            if(ranks[key]) ranks[key].rank += f1(occurences[key])*2;
+            if(ranks[key]) ranks[key].rank += f1(occurences[key]);
           }
         }
       }
@@ -205,7 +207,11 @@ function isS(elem) {
 }
 
 function f1(x) { //computational function
-    return new Number(((-8 / (x + (4/5))) + 10).toFixed(2));
+    return Math.places((-8 / (x + (4/5))) + 10, 2)
+}
+
+function f2(x) { // takes a frequency number(0-10000's), returns weight(0-20)
+    return Math.places((-8 / ((x * 0.02) + (4/5))) + 10, 2)
 }
 
 //           //
@@ -523,8 +529,9 @@ function loadHymn(number) {
 
     mode = modeType.slide;
     addToHistory(hymn.number);
-    writeToURL("num", hymn.number);
+    overwriteURLKey("num", hymn.number);
     // writeToServer(hymn.number, language);
+    updateHymnPopularity(loaded_hymnal_id, hymn.number)
     fadeInLayer($("section#slidelayer")[0]);
 }
 
@@ -699,7 +706,7 @@ function quitSlide() {
     resetSlideNavigation();
     mode = modeType.search;
     fadeOutLayer($("section#slidelayer")[0]);
-    clearURL();
+    clearURLKey("num");
     searchInput.focus();
     searchInput.setSelectionRange(0, 1000);
 }
@@ -1057,9 +1064,9 @@ function clearURLKey(key) {
   var url_str = "?";
   for(var key in present_parameters) {
     for(var value of present_parameters[key]) {
-      url_str = url_str + key + "=" + value + "&"
+      url_str = url_str + (url_str[1] ? "&" : "") + key + "=" + value
     }
-  }
+  }log(url_str)
   pushStatePageHistory(titleFromURL(present_parameters), url_str);
 }
 
@@ -1258,5 +1265,7 @@ searchInput.focusEnd = function () {
     var length = this.value.length * 2;
     this.setSelectionRange(length, length);
 }
+
+Math.places = function (number, places) {if(!places) places = 0; return Math.round(number * Math.pow(10, places)) / Math.pow(10, places)}
 
 //                            //

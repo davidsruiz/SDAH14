@@ -10,9 +10,24 @@
         <link rel="apple-touch-icon" href="resources/images/ios-Icon.png" />
         <link rel="stylesheet" type="text/css" href="UI.css" />
         <link rel="stylesheet" type="text/css" href="HymnUI.css" />
+
+        <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
+        <script>
+          // Initialize Firebase
+          var config = {
+            apiKey: "AIzaSyB8fTgkhcTcfvPqQHDKQEGhCbBmNCLCkpk",
+            authDomain: "sdah-b5078.firebaseapp.com",
+            databaseURL: "https://sdah-b5078.firebaseio.com",
+            storageBucket: "",
+            messagingSenderId: "352871018136"
+          };
+          firebase.initializeApp(config);
+        </script>
+        <script type="text/javascript" src="firebase.js"></script>
+
         <script type="text/javascript" src="resources/objects/hymnal_data.js"></script>
         <script type="text/javascript" src="data.js"></script>
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script type="text/javascript" src="resources/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js"></script>
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
