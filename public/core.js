@@ -5,9 +5,9 @@ var mode = modeType.search;
 
 var category = null;
 var subcategory = null;
+var lastHymn = null;
 
-var minimumRankValue = 30;
-var rankOffset = 20;
+var minimumRankValue = 0;
 
 var highlighted;
 var searchInput = $("#searchinput")[0];
@@ -120,7 +120,10 @@ function search(hymnal, query) {
     // Overall Popularity. 20%
     var freq;
     for(var i = 0; i < ranks.length; i++) {
-        if(freq = database[loaded_hymnal_id][ranks[i].hymn.number]) { ranks[i].rank += f2(freq);log(`hymn ${ranks[i].hymn.number} freq ${freq} weight ${f2(freq)}`)}
+        if(freq = database[loaded_hymnal_id][ranks[i].hymn.number]) {
+          ranks[i].rank += f2(freq)/2;
+          // log(`hymn ${ranks[i].hymn.number} freq ${freq} weight ${f2(freq)}`)
+        }
     }
 
     // History. 10%
@@ -135,17 +138,37 @@ function search(hymnal, query) {
             if(!occurences[list[j]]) occurences[list[j]] = 0;
             occurences[list[j]]++;
           }
-          for(var key in occurences) {
-            if(ranks[key]) ranks[key].rank += f1(occurences[key]);
+          var times = 0;
+          for(var i = 0; i < ranks.length; i++) {
+            if(times = occurences[ranks[i].hymn.number]) ranks[i].rank += f1(times);
           }
+          // log(occurences)
         }
       }
+    }
+
+    // Last Category. 10%
+    if(lastHymn && (lastHymn.category || lastHymn.subcategory)) {
+      if(lastHymn.category)
+        var similar = ranks.filter(function(elem) {return elem.hymn.category == lastHymn.category;})
+      if(lastHymn.subcategory)
+        var similar = ranks.filter(function(elem) {return elem.hymn.subcategory == lastHymn.subcategory;})
+
+      for(var entry of similar)
+        entry.rank += 10;
+      // log('similar');
+      // log(similar.map(function(e) {return `${e.hymn.subcategory || e.hymn.category} ${e.hymn.number} ${e.hymn.name}`}));
+    } else {
+      for(var entry in ranks)
+        entry.rank += 10;
     }
 
     ranks.sort(compareRanks);
 
     var maxResults = 5;
     ranks = ranks.slice(0, maxResults);
+
+    // log(ranks.filter(weakRanks).map(function(e) {return `${e.rank} ${e.hymn.name}`}));
 
     return ranks.filter(weakRanks);
 }
@@ -210,7 +233,7 @@ function f1(x) { //computational function
     return Math.places((-8 / (x + (4/5))) + 10, 2)
 }
 
-function f2(x) { // takes a frequency number(0-10000's), returns weight(0-20)
+function f2(x) { // takes a frequency number(0-10000's), returns weight(0-20).. adjust 0.02
     return Math.places((-8 / ((x * 0.02) + (4/5))) + 10, 2)
 }
 
@@ -527,11 +550,13 @@ function loadHymn(number) {
     currentSlide = 1;
     loadSlide(currentSlide);
 
+    lastHymn = hymn;
+
     mode = modeType.slide;
     addToHistory(hymn.number);
     overwriteURLKey("num", hymn.number);
     // writeToServer(hymn.number, language);
-    updateHymnPopularity(loaded_hymnal_id, hymn.number)
+    updateHymnPopularity(loaded_hymnal_id, hymn.number) // server
     fadeInLayer($("section#slidelayer")[0]);
 }
 
@@ -617,9 +642,10 @@ function mapOntoMobile(content) {
         footer.appendChild(h4);
         container.appendChild(footer);
 
+        table = function(){container.parentElement.scrollTop = 0;}
     }
 }
-
+var table;
 
 function loadSlide(number) {
     if(content) {
