@@ -119,12 +119,13 @@ function search(hymnal, query) {
 
     // Overall Popularity. 20%
     var freq;
-    for(var i = 0; i < ranks.length; i++) {
-        if(freq = database[loaded_hymnal_id][ranks[i].hymn.number]) {
-          ranks[i].rank += f2(freq)/2;
-          // log(`hymn ${ranks[i].hymn.number} freq ${freq} weight ${f2(freq)}`)
-        }
-    }
+    if(database)
+      for(var i = 0; i < ranks.length; i++) {
+          if(freq = database[loaded_hymnal_id][ranks[i].hymn.number]) {
+            ranks[i].rank += f2(freq)/2;
+            // log(`hymn ${ranks[i].hymn.number} freq ${freq} weight ${f2(freq)}`)
+          }
+      }
 
     // History. 10%
     var str = getLocalStorageKey("history");
@@ -355,6 +356,7 @@ function setResults(results) {
 
         var img = ce("img");
         img.src = "resources/images/info.svg";
+        img.draggable = false;
         img.onclick = function (e) {
             createInfobox(this.parentElement.children[0].textContent.slice(1));
             e.stopImmediatePropagation();

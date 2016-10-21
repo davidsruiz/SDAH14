@@ -1,4 +1,4 @@
-var log = m => console.log(m)
+var log = function(m) {console.log(m)}
 // dbRefObject.once('value').then(function (snap) {
 //   var data = snap.val();
 //   // log(data);
@@ -7,7 +7,6 @@ var log = m => console.log(m)
 
 // Reference to db root
 const dbRefObject = firebase.database().ref().child('hymn_popularity');
-log(dbRefObject)
 
 var database;
 dbRefObject.on('value', function (snap) {
