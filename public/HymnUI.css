@@ -2,17 +2,32 @@
 
 /* FONTS */
 
-@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800';
-
-/*@font-face {
-    font-family: "Open Sans";
-    src: url(resources/fonts/Open_Sans/OpenSans-Regular.ttf);
-}
+/*@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800';*/
 
 @font-face {
-    font-family: "Open Sans Light";
-    src: url(resources/fonts/Open_Sans/OpenSans-Light.ttf);
-}*/
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-Regular.ttf) format('truetype');
+  	font-weight: normal;
+  	font-style: normal;
+}
+@font-face {
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-Light.ttf) format('truetype');
+  	font-weight: 300;
+  	font-style: normal;
+}
+@font-face {
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-Bold.ttf) format('truetype');
+  	font-weight: 700;
+  	font-style: normal;
+}
+@font-face {
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf) format('truetype');
+  	font-weight: 800;
+  	font-style: normal;
+}
 
 b {font-weight: normal; font-family: "Open Sans"}
 
@@ -20,16 +35,6 @@ a {font-weight: bold; color: white; text-decoration: none}
 a:hover {text-decoration: underline} a:visited {color: #ddd}
 
 p {font-size: 14pt}
-
-/*@font-face {
-    font-family: "Open Sans Bold";
-    src: url(resources/fonts/Open_Sans/OpenSans-Bold.ttf);
-}
-
-@font-face {
-    font-family: "Open Sans Extrabold";
-    src: url(resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf);
-}*/
 
 
 /* TAGS */

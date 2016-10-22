@@ -1,0 +1,37 @@
+CACHE MANIFEST
+# 2016-10-22:v3
+
+index.html
+HymnUI.css
+UI.js
+UI.css
+data.js
+core.js
+firebase.js
+resources/objects/hymnal_data.js
+resources/jquery/js/jquery-ui-1.10.4.custom.min.js
+resources/jquery/jquery-3.1.1.slim.min.js
+resources/images/manifest.json
+resources/images/android-chrome-192x192.png
+resources/images/apple-touch-icon.png
+resources/images/arrows.svg
+resources/images/close.svg
+resources/images/favicon-16x16.png
+resources/images/favicon-32x32.png
+resources/images/favicon.ico
+resources/images/info.svg
+resources/images/ios-Icon.png
+resources/images/mstile-150x150.png
+resources/images/safari-pinned-tab.svg
+resources/images/sea.jpg
+resources/images/settings.svg
+resources/images/submit.svg
+resources/images/tile.png
+resources/images/WhiteSDALogo.svg
+resources/fonts/Open_Sans/OpenSans-Regular.ttf
+resources/fonts/Open_Sans/OpenSans-Light.ttf
+resources/fonts/Open_Sans/OpenSans-Bold.ttf
+resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf
+
+NETWORK:
+*

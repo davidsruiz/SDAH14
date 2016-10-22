@@ -1,5 +1,7 @@
 // CORE.js //
 
+var appCache = window.applicationCache;
+
 modeType = new Enum("search", "info", "slide");
 var mode = modeType.search;
 
@@ -13,6 +15,7 @@ var highlighted;
 var searchInput = $("#searchinput")[0];
 
 var pageTitle;
+
 
 // FIRST TIME VISIT //
 
@@ -32,7 +35,24 @@ window.onload = function () { setup() }
 
 function setup() {
 
-    var hymnal_id, list ;
+    if(appCache) {
+      appCache.update();
+      if (appCache.status == window.applicationCache.UPDATEREADY) {
+        appCache.swapCache(); //replaces the old cache with the new one.
+      }
+      appCache.addEventListener('updateready', function(e) {
+        if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+          // Browser downloaded a new app cache.
+          if (confirm('A new version of this site is available. Load it?')) {
+            window.location.reload();
+          }
+        } else {
+          // Manifest didn't changed. Nothing new to server.
+        }
+      }, false);
+    }
+
+    var hymnal_id, list;
     if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
       setLocalStorageKey("hymnal", hymnal_id);
     } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
