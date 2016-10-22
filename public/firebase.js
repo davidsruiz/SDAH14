@@ -5,11 +5,11 @@ var log = function(m) {console.log(m)}
 //   database = data;
 // });
 
-var database, firebase;
+var database, firebase, dbRefObject;
 if(firebase) {
 
   // Reference to db root
-  const dbRefObject = firebase.database().ref().child('hymn_popularity');
+  dbRefObject = firebase.database().ref().child('hymn_popularity');
 
   dbRefObject.on('value', function (snap) {
     var data = snap.val();
