@@ -36,8 +36,9 @@ window.onload = function () { setup() }
 function setup() {
 
     if(appCache) {
-      appCache.update();
-      if (appCache.status == window.applicationCache.UPDATEREADY) {
+      if (appCache.status != appCache.UNCACHED)
+        appCache.update();
+      if (appCache.status == appCache.UPDATEREADY) {
         appCache.swapCache(); //replaces the old cache with the new one.
       }
       appCache.addEventListener('updateready', function(e) {
