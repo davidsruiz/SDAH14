@@ -1,17 +1,21 @@
 // CORE.js //
 
+var appCache = window.applicationCache;
+
 modeType = new Enum("search", "info", "slide");
 var mode = modeType.search;
 
 var category = null;
 var subcategory = null;
+var lastHymn = null;
 
-var minimumRankValue = 30;
+var minimumRankValue = 0;
 
 var highlighted;
 var searchInput = $("#searchinput")[0];
 
 var pageTitle;
+
 
 // FIRST TIME VISIT //
 
@@ -31,7 +35,25 @@ window.onload = function () { setup() }
 
 function setup() {
 
-    var hymnal_id, list ;
+    if(appCache) {
+      if (appCache.status != appCache.UNCACHED)
+        appCache.update();
+      if (appCache.status == appCache.UPDATEREADY) {
+        appCache.swapCache(); //replaces the old cache with the new one.
+      }
+      appCache.addEventListener('updateready', function(e) {
+        if (window.applicationCache.status == window.applicationCache.UPDATEREADY) {
+          // Browser downloaded a new app cache.
+          if (confirm('A new version of this site is available. Load it?')) {
+            window.location.reload();
+          }
+        } else {
+          // Manifest didn't changed. Nothing new to server.
+        }
+      }, false);
+    }
+
+    var hymnal_id, list;
     if((list = readFromURL("h")) && (hymnal_id = list[0]) && loadHymnal(hymnal_id)) {
       setLocalStorageKey("hymnal", hymnal_id);
     } else if((hymnal_id = getLocalStorageKey("hymnal")) && loadHymnal(hymnal_id)) {
@@ -107,21 +129,26 @@ function search(hymnal, query) {
     if(subcategory !== null) ranks = ranks.filter(isS);
 
     // Similarity Check. 70%
+    // var wt = 0.7; var wt1 = 0.8 * wt; var wt2 = 0.2 * wt; // Number or Title: 80% (56%)
     for(var i = 0; i < ranks.length; i++) {
-        var numberRank = (compare(query, ranks[i].hymn.number)) * 0.56;                             // Number:   } Either Or
-        var titleRank = (compare(query.toLowerCase().removeDiacritics().removePunctutation(), ranks[i].hymn.name.toLowerCase().removeDiacritics().removePunctutation())) * 0.56; // Title:       } @ 40% of 70% = 56%
+        var numberRank = (compare(query, ranks[i].hymn.number)) * 0.7;
+        var titleRank  = (compare(query.toLowerCase().removeDiacritics().removePunctutation(), ranks[i].hymn.name.toLowerCase().removeDiacritics().removePunctutation())) * 0.7;
         ranks[i].rank += (numberRank > titleRank) ? numberRank : titleRank;
     }
-       // Content: 20% (14%)
-        // Not computed "on the fly" to save memory
+      // Content: 20% (14%)
+        // Not computed "on the fly" to save memory, should be indexed
 
     // Overall Popularity. 20%
-    for(var i = 0; i < ranks.length; i++) {
-        ranks[i].rank += 32; // To be compiled
-    }
+    var freq;
+    if(database)
+      for(var i = 0; i < ranks.length; i++) {
+          if(freq = database[loaded_hymnal_id][ranks[i].hymn.number]) {
+            ranks[i].rank += f2(freq)/2;
+            // log(`hymn ${ranks[i].hymn.number} freq ${freq} weight ${f2(freq)}`)
+          }
+      }
 
-
-    // History. 20%
+    // History. 10%
     var str = getLocalStorageKey("history");
     if(str) {
       var obj = JSON.parse(str)
@@ -133,17 +160,37 @@ function search(hymnal, query) {
             if(!occurences[list[j]]) occurences[list[j]] = 0;
             occurences[list[j]]++;
           }
-          for(var key in occurences) {
-            if(ranks[key]) ranks[key].rank += f1(occurences[key])*2;
+          var times = 0;
+          for(var i = 0; i < ranks.length; i++) {
+            if(times = occurences[ranks[i].hymn.number]) ranks[i].rank += f1(times);
           }
+          // log(occurences)
         }
       }
+    }
+
+    // Last Category. 10%
+    if(lastHymn && (lastHymn.category || lastHymn.subcategory)) {
+      if(lastHymn.category)
+        var similar = ranks.filter(function(elem) {return elem.hymn.category == lastHymn.category;})
+      if(lastHymn.subcategory)
+        var similar = ranks.filter(function(elem) {return elem.hymn.subcategory == lastHymn.subcategory;})
+
+      for(var entry of similar)
+        entry.rank += 10;
+      // log('similar');
+      // log(similar.map(function(e) {return `${e.hymn.subcategory || e.hymn.category} ${e.hymn.number} ${e.hymn.name}`}));
+    } else {
+      for(var entry in ranks)
+        entry.rank += 10;
     }
 
     ranks.sort(compareRanks);
 
     var maxResults = 5;
     ranks = ranks.slice(0, maxResults);
+
+    // log(ranks.filter(weakRanks).map(function(e) {return `${e.rank} ${e.hymn.name}`}));
 
     return ranks.filter(weakRanks);
 }
@@ -205,7 +252,11 @@ function isS(elem) {
 }
 
 function f1(x) { //computational function
-    return new Number(((-8 / (x + (4/5))) + 10).toFixed(2));
+    return Math.places((-8 / (x + (4/5))) + 10, 2)
+}
+
+function f2(x) { // takes a frequency number(0-10000's), returns weight(0-20).. adjust 0.02
+    return Math.places((-8 / ((x * 0.02) + (4/5))) + 10, 2)
 }
 
 //           //
@@ -326,6 +377,7 @@ function setResults(results) {
 
         var img = ce("img");
         img.src = "resources/images/info.svg";
+        img.draggable = false;
         img.onclick = function (e) {
             createInfobox(this.parentElement.children[0].textContent.slice(1));
             e.stopImmediatePropagation();
@@ -521,10 +573,13 @@ function loadHymn(number) {
     currentSlide = 1;
     loadSlide(currentSlide);
 
+    lastHymn = hymn;
+
     mode = modeType.slide;
     addToHistory(hymn.number);
-    writeToURL("num", hymn.number);
+    overwriteURLKey("num", hymn.number);
     // writeToServer(hymn.number, language);
+    updateHymnPopularity(loaded_hymnal_id, hymn.number) // server
     fadeInLayer($("section#slidelayer")[0]);
 }
 
@@ -610,9 +665,10 @@ function mapOntoMobile(content) {
         footer.appendChild(h4);
         container.appendChild(footer);
 
+        table = function(){container.parentElement.scrollTop = 0;}
     }
 }
-
+var table;
 
 function loadSlide(number) {
     if(content) {
@@ -699,7 +755,7 @@ function quitSlide() {
     resetSlideNavigation();
     mode = modeType.search;
     fadeOutLayer($("section#slidelayer")[0]);
-    clearURL();
+    clearURLKey("num");
     searchInput.focus();
     searchInput.setSelectionRange(0, 1000);
 }
@@ -1057,9 +1113,9 @@ function clearURLKey(key) {
   var url_str = "?";
   for(var key in present_parameters) {
     for(var value of present_parameters[key]) {
-      url_str = url_str + key + "=" + value + "&"
+      url_str = url_str + (url_str[1] ? "&" : "") + key + "=" + value
     }
-  }
+  }log(url_str)
   pushStatePageHistory(titleFromURL(present_parameters), url_str);
 }
 
@@ -1258,5 +1314,7 @@ searchInput.focusEnd = function () {
     var length = this.value.length * 2;
     this.setSelectionRange(length, length);
 }
+
+Math.places = function (number, places) {if(!places) places = 0; return Math.round(number * Math.pow(10, places)) / Math.pow(10, places)}
 
 //                            //

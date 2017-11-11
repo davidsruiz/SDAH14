@@ -2,17 +2,32 @@
 
 /* FONTS */
 
-@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800';
-
-/*@font-face {
-    font-family: "Open Sans";
-    src: url(resources/fonts/Open_Sans/OpenSans-Regular.ttf);
-}
+/*@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800';*/
 
 @font-face {
-    font-family: "Open Sans Light";
-    src: url(resources/fonts/Open_Sans/OpenSans-Light.ttf);
-}*/
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-Regular.ttf) format('truetype');
+  	font-weight: normal;
+  	font-style: normal;
+}
+@font-face {
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-Light.ttf) format('truetype');
+  	font-weight: 300;
+  	font-style: normal;
+}
+@font-face {
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-Bold.ttf) format('truetype');
+  	font-weight: 700;
+  	font-style: normal;
+}
+@font-face {
+    font-family: "Open Sans";
+    src: url(resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf) format('truetype');
+  	font-weight: 800;
+  	font-style: normal;
+}
 
 b {font-weight: normal; font-family: "Open Sans"}
 
@@ -20,16 +35,6 @@ a {font-weight: bold; color: white; text-decoration: none}
 a:hover {text-decoration: underline} a:visited {color: #ddd}
 
 p {font-size: 14pt}
-
-/*@font-face {
-    font-family: "Open Sans Bold";
-    src: url(resources/fonts/Open_Sans/OpenSans-Bold.ttf);
-}
-
-@font-face {
-    font-family: "Open Sans Extrabold";
-    src: url(resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf);
-}*/
 
 
 /* TAGS */
@@ -150,7 +155,9 @@ section#searchlayer
 {
     z-index: 0;
     /*background: url("resources/images/Me6eM3B.jpg") #333 center no-repeat;*/
-    background: url("resources/images/Dg31Gdi0.jpg") #333 center no-repeat;
+    /*background: url("resources/images/Dg31Gdi0.jpg") #333 center no-repeat;*/
+    background: url("resources/images/tile.png") #2A2A2A center;
+    background-size: 196px;
 
     -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -158,6 +165,22 @@ section#searchlayer
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
+}
+
+section#searchlayer:before {
+    z-index: -1;
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-image: radial-gradient(center center, circle cover, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    background-image: -o-radial-gradient(center center, circle cover, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    background-image: -ms-radial-gradient(center center, circle cover, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    background-image: -moz-radial-gradient(center center, circle cover, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    background-image: -webkit-radial-gradient(center center, circle cover, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.6));
+    opacity: .6;
 }
 
 section#welcomelayer
