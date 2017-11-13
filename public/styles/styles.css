@@ -1,0 +1,323 @@
+
+
+/* Imports */
+
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:400,400i|Secular+One');
+@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+
+
+/* Variables */
+
+:root {
+    /* colors */
+    --primary-color: #EEEEEE;
+    --secondary-color: #424242;
+    --accent-color: #D32F2F;
+    /* fonts */
+    --Roboto-Mono: 'Roboto Mono', sans-serif;
+    --Secular-One: 'Secular One', serif;
+}
+
+/* Page */
+
+html, body {
+    width: 100%;
+    height: 100%;
+
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+}
+
+body {
+    margin: 0;
+    background-color: var(--primary-color);
+}
+
+
+/* Everything else ... */
+
+input {
+    outline: 0;
+}
+
+#container {
+    overflow: hidden;
+}
+
+#container, #hymn-app, .app-page {
+    width: 100%;
+    height: 100%;
+}
+
+#hymn-app {
+    overflow: hidden;
+}
+
+#container div, #container span {
+    display: inline-block;
+}
+
+.app-page {
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.8);
+
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    text-align: center;
+    overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
+
+    transition: 0.6s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+.app-page.hidden {
+    top: 110%;
+    transition-timing-function: cubic-bezier(0.4, 0.0, 1, 1);
+}
+
+.page-content {
+    width: 100%;
+    max-width: 664px;
+    padding: 32px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+hr {
+    width: 100%;
+    height: 2px;
+    margin: 0 0 12px 0;
+    border: none;
+    background-color: var(--secondary-color);
+}
+
+#container .hide { display: none; }
+
+/* Headers */
+
+.page-top, .page-bottom {
+    width: 100%;
+}
+
+.title-bar, .subtitle-bar {
+    width: 100%;
+}
+
+.subtitle-bar {
+    margin-bottom: 18px;
+}
+
+/* Page Title */
+
+.page-title {
+    font: 48px var(--Secular-One);
+}
+
+.left-title {
+    float: right;
+}
+
+.page-close, .theme-button {
+    margin: 21px 0;
+    cursor: pointer;
+}
+
+/* */
+
+/* Home Page */
+
+#home-page >.page-content {
+    position: relative;
+    margin-bottom: 56px;
+}
+
+.home-section {
+    width: 100%;
+    margin-bottom: 16px;
+}
+
+.home-section-title {
+    font: italic 24px var(--Roboto-Mono);
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+#hymnal-info, #account-button {
+    font: 18px var(--Secular-One);
+    cursor: pointer;
+}
+
+#account-button {
+    float: right;
+}
+
+#fab {
+
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+
+    width: 56px;
+    height: 56px;
+    padding: 16px;
+    border-radius: 28px;
+    box-sizing: border-box;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.8);
+
+    color: var(--primary-color);
+    background-color: var(--secondary-color);
+
+    cursor: pointer;
+    transition: 0.4s;
+
+}
+
+#fab:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Hymn List */
+
+.hymn-list {
+    width: 100%;
+}
+
+/* Hymn Entry */
+
+.hymn-entry {
+    width: 100%;
+    font: 18px var(--Secular-One);
+    line-height: 40px;
+    cursor: pointer;
+}
+
+.hymn-entry-number {
+    display: inline-block;
+    width: 32px;
+    margin-right: 12px;
+    text-align: right;
+    vertical-align: top;
+}
+
+.hymn-entry-title {
+    width: calc(100% - 76px);
+}
+
+.hymn-entry-favorite {
+    margin-left: 8px;
+    float: right;
+}
+
+.hymn-entry-favorite .material-icons {
+    vertical-align: middle;
+}
+
+/* Favorites */
+
+.favorite {
+    color: var(--secondary-color);
+    opacity: 0.2;
+    cursor: pointer;
+}
+
+.favorite.active {
+    color: var(--accent-color);
+    opacity: 0.8;
+}
+
+
+/* List Page */
+
+#list-sort {
+
+    color: var(--secondary-color);
+
+    font: 18px var(--Secular-One);
+    text-align: right;
+
+    float: right;
+
+}
+
+#list-sort-select {
+    -webkit-appearance: unset;
+    border: none;
+    background-color: transparent;
+
+    color: inherit;
+    font: inherit;
+}
+
+
+/* Search Page */
+#search-bar-input {
+    -webkit-appearance: unset;
+    background-color: transparent;
+
+    color: var(--secondary-color);
+    font: italic 24px var(--Roboto-Mono);
+
+    width: calc(100% - 48px);
+    border: none;
+    margin: 18px 0;
+
+}
+
+.search-bar-input::-webkit-input-placeholder { /* Chrome/Opera/Safari */  color: var(--secondary-color); opacity: 0.2;  }
+.search-bar-input::-moz-placeholder { /* Firefox 19+ */  color: var(--secondary-color); opacity: 0.2;  }
+.search-bar-input:-ms-input-placeholder { /* IE 10+ */  color: var(--secondary-color); opacity: 0.2;  }
+.search-bar-input:-moz-placeholder { /* Firefox 18- */  color: var(--secondary-color); opacity: 0.2;  }
+
+
+/* Hymn Page */
+
+.hymn-number {
+    width: 120px;
+    margin-left: calc(50% - 60px);
+
+    text-align: center;
+
+    font: 48px var(--Secular-One);
+}
+
+#hymn-name {
+    width: 100%;
+    font: 18px var(--Roboto-Mono);
+    text-align: center;
+}
+
+#hymn-page .favorite {
+    margin-right: 8px;
+}
+
+#hymn-lyrics {
+    width: 100%;
+    white-space: pre-line;
+    font: 18px var(--Secular-One);
+    line-height: 40px;
+}
+
+/* Account Page */
+
+#signin-buttons {
+    width: 100%;
+    padding-top: 100px;
+    text-align: center;
+}
+
+
+/* MEDIA TAGS */
+
+@media screen and (min-width: 664px) {
+    .page-content {
+        margin-top: calc(50% - 332px);
+    }
+}
+
+@media screen and (min-width: 828px) {
+    .page-content {
+        margin-top: 82px;
+    }
+}
