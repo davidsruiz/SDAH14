@@ -1,30 +1,32 @@
 /* Hymbook Specific User Interface Elements */
 
+@import url('https://fonts.googleapis.com/css?family=Roboto+Mono:400,400i|Secular+One');
+
 /* FONTS */
 
 /*@import 'https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800';*/
 
 @font-face {
     font-family: "Open Sans";
-    src: url(resources/fonts/Open_Sans/OpenSans-Regular.ttf) format('truetype');
+    src: url(../resources/fonts/Open_Sans/OpenSans-Regular.ttf) format('truetype');
   	font-weight: normal;
   	font-style: normal;
 }
 @font-face {
     font-family: "Open Sans";
-    src: url(resources/fonts/Open_Sans/OpenSans-Light.ttf) format('truetype');
+    src: url(../resources/fonts/Open_Sans/OpenSans-Light.ttf) format('truetype');
   	font-weight: 300;
   	font-style: normal;
 }
 @font-face {
     font-family: "Open Sans";
-    src: url(resources/fonts/Open_Sans/OpenSans-Bold.ttf) format('truetype');
+    src: url(../resources/fonts/Open_Sans/OpenSans-Bold.ttf) format('truetype');
   	font-weight: 700;
   	font-style: normal;
 }
 @font-face {
     font-family: "Open Sans";
-    src: url(resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf) format('truetype');
+    src: url(../resources/fonts/Open_Sans/OpenSans-ExtraBold.ttf) format('truetype');
   	font-weight: 800;
   	font-style: normal;
 }
@@ -156,7 +158,7 @@ section#searchlayer
     z-index: 0;
     /*background: url("resources/images/Me6eM3B.jpg") #333 center no-repeat;*/
     /*background: url("resources/images/Dg31Gdi0.jpg") #333 center no-repeat;*/
-    background: url("resources/images/tile.png") #2A2A2A center;
+    background: url("../resources/images/tile.png") #2A2A2A center;
     background-size: 196px;
 
     -webkit-touch-callout: none;
@@ -210,7 +212,7 @@ section#slidelayer
 {
     display: none;
     z-index: 30;
-    background: url("resources/images/sea.jpg") #333 center no-repeat;
+    background: url("../resources/images/sea.jpg") #333 center no-repeat;
     -webkit-font-smoothing: antialiased;
     opacity: 0;
 }
