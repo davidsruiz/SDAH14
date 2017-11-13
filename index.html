@@ -1,6 +1,8 @@
 <!DOCTYPE html>
+
 <!-- revisit <html lang="en"... -->
 <!--<html manifest="manifest.appcache">-->
+
 <html>
     <head>
         <title>Seventh-Day Adventist Hymnal</title>
@@ -9,19 +11,22 @@
         <meta name="apple-mobile-web-app-capable" content="yes">
         <meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-        <!-- the -->
-        <link rel="apple-touch-icon" sizes="180x180" href="/resources/images/apple-touch-icon.png">
-        <link rel="icon" type="image/png" href="/resources/images/favicon-32x32.png" sizes="32x32">
-        <link rel="icon" type="image/png" href="/resources/images/favicon-16x16.png" sizes="16x16">
-        <link rel="manifest" href="/resources/images/manifest.json">
-        <link rel="mask-icon" href="/resources/images/safari-pinned-tab.svg" color="#333333">
-        <link rel="shortcut icon" href="/resources/images/favicon.ico">
-        <meta name="msapplication-config" content="/resources/images/browserconfig.xml">
-        <meta name="theme-color" content="#333333">
+        <!-- application -->
+        <!--<link rel="apple-touch-icon" sizes="180x180" href="/resources/images/apple-touch-icon.png">-->
+        <!--<link rel="icon" type="image/png" href="/resources/images/favicon-32x32.png" sizes="32x32">-->
+        <!--<link rel="icon" type="image/png" href="/resources/images/favicon-16x16.png" sizes="16x16">-->
+        <!--<link rel="manifest" href="/resources/images/manifest.json">-->
+        <!--<link rel="mask-icon" href="/resources/images/safari-pinned-tab.svg" color="#333333">-->
+        <!--<link rel="shortcut icon" href="/resources/images/favicon.ico">-->
+        <!--<meta name="msapplication-config" content="/resources/images/browserconfig.xml">-->
+        <!--<meta name="theme-color" content="#333333">-->
 
+        <!-- styles -->
         <link rel="stylesheet" type="text/css" href="public/styles/UI.css" />
-        <link rel="stylesheet" type="text/css" href="public/styles/HymnUI.css" />
+        <!--<link rel="stylesheet" type="text/css" href="public/styles/HymnUI.css" />-->
+        <link rel="stylesheet" type="text/css" href="public/styles/styles.css" />
 
+        <!-- script -->
         <script src="https://www.gstatic.com/firebasejs/3.4.1/firebase.js"></script>
         <script>
           // Initialize Firebase
@@ -34,12 +39,19 @@
           }, firebase;
           if(firebase) firebase.initializeApp(config);
         </script>
-        <script type="text/javascript" src="public/js/firebase.js"></script>
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
 
         <script type="text/javascript" src="public/resources/objects/hymnal_data.js"></script>
-        <script type="text/javascript" src="public/js/data.js"></script>
-        <script src="public/resources/jquery/jquery-3.1.1.slim.min.js"></script>
-        <script type="text/javascript" src="public/resources/jquery/js/jquery-ui-1.10.4.custom.min.js"></script>
+        <script type="text/javascript" src="public/js1/bundle.js"></script>
+
+        <!--<script type="text/javascript" src="public/js/firebase.js"></script>-->
+
+        <!--<script type="text/javascript" src="public/resources/objects/hymnal_data.js"></script>-->
+        <!--<script type="text/javascript" src="public/js/data.js"></script>-->
+        <!--<script src="public/resources/jquery/jquery-3.1.1.slim.min.js"></script>-->
+        <!--<script type="text/javascript" src="public/resources/jquery/js/jquery-ui-1.10.4.custom.min.js"></script>-->
+
         <script>
           (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
           (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
@@ -49,147 +61,11 @@
           ga('create', 'UA-84609329-1', 'auto');
           ga('send', 'pageview');
         </script>
+
     </head>
     <body>
-        <section id="searchlayer">
-            <header>
-                <div id="headerelements" onclick="settingsmenu.toggle(); event.stopImmediatePropagation()">
-                    <span id="langselect"></span>
-                    <span id="headerdivider"></span>
-                    <img id="settingsicon" src="public/resources/images/settings.svg" selected="false" />
-                    <div id="settingsmenu" class="popup" active="false">
-                        <row><span id="set_hymnal_label">Hymnal</span>: <span id="set_hymnal" class="UI_DROP" options="English">English</span></row>
-                        <!-- <row>Hymnal: <span class="UI_DROP" options="1985 version">1985 version</span></row> -->
-                    </div>
-                </div>
-            </header>
-            <article>
-                <nav id="musicsettings"><span id="tags"></span></nav>
-                <div id="searchcomponents">
-                    <div id="apparentsearchbar">
-                        <div id="searchbar">
-                            <div id="searchcontent">
-                                <!--span id="tags"><span class="searchtag"></span></span>-->
-                                <span id="searchtext">
-                                    <span id="autocomplete"></span>
-                                    <input id="searchinput" type="text" placeholder="" onfocus="send(this.value)" oninput="send(this.value)" maxlength="2048" autocapitalize="off" autocomplete="off" aria-label="Search" aria-haspopup="false" role="combobox" />
-                                </span>
-                            </div>
-                        </div><div id="submitbutton" onclick="choose()" disabled=""><img id="submiticon" src="public/resources/images/submit.svg" draggable="false"/></div>
-                    </div>
-                    <div id="searchresults">
-                        <ul id="resultslist"></ul>
-                    </div>
-                </div>
-            </article>
-            <footer>
-                <div id="footerelements">
-                    <!-- <span>feedback</span><span>about</span><span>resources</span> -->
-                    <!-- <span>feedback</span> -->
-                    <span id="about" onclick="fadeInLayer($('#extraslayer')[0])">about</span>
-                    <a href="mailto:contact@davidsruiz.com"><span id="contact">contact</span></a>
-                </div>
-            </footer>
-        </section>
-        <section id="welcomelayer" onclick="hideLayer(this)">
-            <div id="organizationelements">
-                <img src="public/resources/images/WhiteSDALogo.svg" draggable="false" /><br/>
-                <span id="welcome-message"></span>
-            </div>
-        </section>
-        <section id="extraslayer" onclick="fadeOutLayer(this)">
-            <div id="infopageelements">
-                <div id="infopageheader">About</div>
-                <div id="infopagecontent">
-<p id="about-section-body">
-  Daily, we use sites and services that exceed our expectations in features and functionality
-  as companies around the world pour time and investment into the technological future of
-  our society. Yet most of the content we come across rarely has an impact on our lives for
-  the better. And with quality gap between sacred and secular content growing ever more, current
-  sites that get the job done just don't inspire or unite. This site was born out of necessity to have
-  an accesible hymnal on every screen, and to further the outreach of the word to every part of
-  the world.
 
-  Welcome to the number one Adventist Hymnal on the web!
-  Designed to replace the physical hymnal using by means of speed, availablily, and portability.
-  Share the site to spread the love. And remember to sing!
-</p>
-<p>
-  <br>
-  <br>
-  <br>
-  <br>
-  <span id="about-section-footer-1"> This hymnal was imagined, planned and created (with &#9825; and JS) by </span>
-  <a href="http://davidsruiz.com" title="website">David Ruiz</a>
-  <br>
-  <span id="about-section-footer-2"></span>
-  <a href="mailto:contact@davidsruiz.com" title="email">contact@davidsruiz.com</a>
-</p>
+        <div id="container"></div>
 
-<!-- <p>Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum. Nam quam nunc, blandit vel, luctus pulvinar, hendrerit id, lorem. Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. Etiam sit amet orci eget eros faucibus tincidunt. Duis leo. Sed fringilla mauris sit amet nibh. Donec sodales sagittis magna. Sed consequat, leo eget bibendum sodales, augue velit cursus nunc, quis gravida magna mi a libero. Fusce vulputate eleifend sapien. Vestibulum purus quam, scelerisque ut, mollis sed, nonummy id, metus. Nullam accumsan lorem in dui. Cras ultricies mi eu turpis hendrerit fringilla. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; In ac dui quis mi consectetuer lacinia.</p>
-
-<p>Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris. Integer ante arcu, accumsan a, consectetuer eget, posuere ut, mauris. Praesent adipiscing. Phasellus ullamcorper ipsum rutrum nunc. Nunc nonummy metus. Vestibulum volutpat pretium libero. Cras id dui. Aenean ut eros et nisl sagittis vestibulum. Nullam nulla eros, ultricies sit amet, nonummy id, imperdiet feugiat, pede. Sed lectus. Donec mollis hendrerit risus. Phasellus nec sem in justo pellentesque facilisis. Etiam imperdiet imperdiet orci. Nunc nec neque. Phasellus leo dolor, tempus non, auctor et, hendrerit quis, nisi.</p>
-
-<p>Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa. Sed cursus turpis vitae tortor. Donec posuere vulputate arcu. Phasellus accumsan cursus velit. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Sed aliquam, nisi quis porttitor congue, elit erat euismod orci, ac placerat dolor lectus quis orci. Phasellus consectetuer vestibulum elit. Aenean tellus metus, bibendum sed, posuere ac, mattis non, nunc. Vestibulum fringilla pede sit amet augue. In turpis. Pellentesque posuere. Praesent turpis.</p>
-
-<p>Aenean posuere, tortor sed cursus feugiat, nunc augue blandit nunc, eu sollicitudin urna dolor sagittis lacus. Donec elit libero, sodales nec, volutpat a, suscipit non, turpis. Nullam sagittis. Suspendisse pulvinar, augue ac venenatis condimentum, sem libero volutpat nibh, nec pellentesque velit pede quis nunc. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Fusce id purus. Ut varius tincidunt libero. Phasellus dolor. Maecenas vestibulum mollis diam. Pellentesque ut neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-
-<p>In dui magna, posuere eget, vestibulum et, tempor auctor, justo. In ac felis quis tortor malesuada pretium. Pellentesque auctor neque nec urna. Proin sapien ipsum, porta a, auctor quis, euismod ut, mi. Aenean viverra rhoncus pede. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Ut non enim eleifend felis pretium feugiat. Vivamus quis mi. Phasellus a est. Phasellus magna.</p>
-
-<p>In hac habitasse platea dictumst. Curabitur at lacus ac velit ornare lobortis. Curabitur a felis in nunc fringilla tristique. Morbi mattis ullamcorper velit. Phasellus gravida semper nisi. Nullam vel sem. Pellentesque libero tortor, tincidunt et, tincidunt eget, semper nec, quam. Sed hendrerit. Morbi ac felis. Nunc egestas, augue at pellentesque laoreet, felis eros vehicula leo, at malesuada velit leo quis pede. Donec interdum, metus et hendrerit aliquet, dolor diam sagittis ligula, eget egestas libero turpis vel mi. Nunc nulla. Fusce risus nisl, viverra et, tempor et, pretium in, sapien. Donec venenatis vulputate lorem.</p></div> -->
-            </div>
-        </section>
-        <section id="slidelayer">
-            <div id="desktopUI">
-                <header>
-                    <div id="quitslidebutton" onclick="quitSlide()"><img src="public/resources/images/close.svg" draggable="false"/></div>
-                    <div id="slideoptions"><span id="slideNavigation"></span></div>
-                </header>
-                <article onclick="nextSlide()">
-                    <!-- <div id="lefttitleslide"><h1>#324</h1></div><div id="righttitleslide"><h1>Cristo es mi Amante Salvador</h1></div> -->
-                    <div id="wordsnormalslide">
-                        <h2>Verse 1</h2>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>asse platea dictumst. Curabitur at lacu</h3>
-                        <h3>laoreet, felis eros vehicula leo, at</h3>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                    <div>
-                </article>
-                <footer><h4>*Stanza 1 to be sung as refrain after stanzas 2 to 5</h4></footer>
-            </div>
-            <div id="mobileUI">
-                <header><span id="mobiletitlecontainer"><h1>#324 Cristo es mi Amante Salvador</h1></span><span id="mobilequitslidebutton" onclick="quitSlide()"><img src="public/resources/images/close.svg" /></span></header>
-                <article>
-                    <div id="mobileslidecenterblock">
-                        <h2>Verse 1</h2>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>asse platea dictumst. Curabitur at lacu</h3>
-                        <h3>laoreet, felis eros vehicula leo, at</h3>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <h2>Refrain</h2>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>asse platea dictumst. Curabitur at lacu</h3>
-                        <h3>laoreet, felis eros vehicula leo, at</h3>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <h2>Verse 1</h2>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>asse platea dictumst. Curabitur at lacu</h3>
-                        <h3>laoreet, felis eros vehicula leo, at</h3>
-                        <h3>In dui magna, posuere eget, vestibulum et</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <h3>te arcu. Phasellus accumsan</h3>
-                        <footer><h4>*Stanza 1 to be sung as refrain after stanzas 2 to 5</h4></footer>
-                    </div>
-                </article>
-            </div>
-        </section>
-        <script type="text/javascript" src="public/js/UI.js"></script>
-        <script type="text/javascript" src="public/js/core.js"></script>
     </body>
 </html>
