@@ -40,7 +40,7 @@
 //
 // }
 
-
+import { usableLocalStorage } from './util.js'
 
 
 export default class FirebaseUser {
@@ -72,7 +72,7 @@ export default class FirebaseUser {
 
   readLocalUserData() {
 
-    if(!this.storage) return;
+    if(!usableLocalStorage()) return;
 
     let favStr = this.storage.getItem('favorites') || '[]';
     let recStr = this.storage.getItem('recents') || '[]';
@@ -95,7 +95,11 @@ export default class FirebaseUser {
     this.providers.google = new firebase.auth.GoogleAuthProvider();
     this.providers.facebook = new firebase.auth.FacebookAuthProvider();
 
-    firebase.auth().getRedirectResult();
+    firebase.auth().getRedirectResult()
+      .catch(error => {
+        console.log(error);
+        this.refreshUI();
+      });
 
     // firebase.auth().getRedirectResult().then(function(result) {
     //   if (result.credential) {
@@ -261,7 +265,7 @@ export default class FirebaseUser {
 
   saveFavoritesLocally() {
 
-    if(!this.storage) return;
+    if(!usableLocalStorage()) return;
 
     const favStr = JSON.stringify([...this.favorites]);
 
@@ -271,7 +275,7 @@ export default class FirebaseUser {
 
   clearFavoritesLocally() {
 
-    if(!this.storage) return;
+    if(!usableLocalStorage()) return;
 
     this.storage.removeItem('favorites');
 
@@ -327,7 +331,7 @@ export default class FirebaseUser {
 
   saveRecentsLocally() {
 
-    if(!this.storage) return;
+    if(!usableLocalStorage()) return;
 
     const recStr = JSON.stringify([...this.recents]);
 
@@ -337,7 +341,7 @@ export default class FirebaseUser {
 
   clearRecentsLocally() {
 
-    if(!this.storage) return;
+    if(!usableLocalStorage()) return;
 
     this.storage.removeItem('recents');
 
