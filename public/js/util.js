@@ -49,3 +49,16 @@ export function weakRanks(minimumRankValue) {
 }
 
 //               //
+
+// test localStorage //
+
+export function usableLocalStorage(){
+  const test = 'test';
+  try {
+    localStorage.setItem(test, test);
+    localStorage.removeItem(test);
+    return true;
+  } catch(e) {
+    return false;
+  }
+}

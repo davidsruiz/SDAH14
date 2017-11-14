@@ -26,6 +26,7 @@ html, body {
 
     -webkit-font-smoothing: antialiased;
     overflow: hidden;
+    position: relative; /* <-- overflow hidden doesn't work without this! :( */
 }
 
 body {
