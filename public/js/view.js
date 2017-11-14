@@ -4,6 +4,7 @@ import {
   normalizeQueryWithPunctuation,
   clearemptystrings,
   weakRanks,
+  usableLocalStorage,
 } from "./util.js"
 
 // --------------- //
@@ -73,7 +74,7 @@ export default class HymnApp extends React.Component {
   }
 
   savedTheme() {
-    if(!localStorage) return 0;
+    if(!usableLocalStorage()) return 0;
     let theme = Number(localStorage.getItem('theme'));
     if(!(theme >= 0 && theme < this.colors.length)) theme = 0;
     return theme;
@@ -95,7 +96,7 @@ export default class HymnApp extends React.Component {
   }
 
   storeTheme(theme) {
-    if(localStorage) localStorage.setItem('theme', theme);
+    if(usableLocalStorage()) localStorage.setItem('theme', theme);
     this.setState({ theme });
   }
 
