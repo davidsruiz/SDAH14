@@ -58,7 +58,7 @@ export default class FirebaseUser {
     this.groups = { // referenced
       recents: [],
       favorites: [],
-      popular: ['90', '32', '123', '23'],
+      popular: ['473', '633', '294', '50', '506', '478', '181', '487', '121', '422', '240'],
     };
 
     this.favorites = new Set();
