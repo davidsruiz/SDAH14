@@ -200,6 +200,8 @@ class HymnAppHomePage extends React.Component {
     const favoritesShow = !!this.props.groups.favorites.length;
     const popularShow = !!this.props.groups.popular.length;
 
+    const popularSectionLength = (!recentsShow && !favoritesShow) ? 7 : 3 ;
+
     const accountButton = this.props.user.name ? this.props.user.name : this.props.languageStrings.words.signIn;
     const accountButtonAction = this.props.user.name ? (() => (window.confirm('logout?') && this.props.logout())) : () => this.props.showPage('account');
 
@@ -262,7 +264,7 @@ class HymnAppHomePage extends React.Component {
                 onClick={() => this.props.showList('popular')}>{ this.props.languageStrings.words.popular + ' ▾'}</span>
               <HymnList
                 hymns={hymns}
-                list={this.props.groups.popular.slice(0, this.sectionListLength)}
+                list={this.props.groups.popular.slice(0, popularSectionLength)}
                 groups={this.props.groups}
                 onClick={n => this.props.openHymn(n)}
                 onFavorite={n => this.props.onFavorite(n)} />
@@ -671,11 +673,11 @@ class HymnAppAccountPage extends React.Component {
 
             <div id="signin-buttons">
               <img
-                src="./public/resources/images/googleSignin.svg"
+                src="./resources/images/googleSignin.svg"
                 alt="Google Sign In"
                 onClick={() => this.props.signin('google')} />
               {/*<img*/}
-                {/*src="./public/resources/images/facebookSignin.svg"*/}
+                {/*src="./resources/images/facebookSignin.svg"*/}
                 {/*alt="Facebook Sign In"*/}
                 {/*onClick={() => this.props.signin('facebook')} />*/}
             </div>
@@ -826,7 +828,7 @@ class ThemeButton extends React.Component {
 
   render() {
 
-    const imageSource = `./public/resources/images/${this.props.theme}-themeIcon.svg`;
+    const imageSource = `./resources/images/${this.props.theme}-themeIcon.svg`;
 
     return (
       <div className='theme-button' onClick={() => this.props.onClick()}>
