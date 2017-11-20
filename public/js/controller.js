@@ -1,89 +1,61 @@
 
-import EventProtocol from './eventProtocol.js';
-import { data as hymnalsData } from "../resources/objects/hymnal_data.js"
+import HymnApp from './view.js';
+import FirebaseUser from './firebase.js';
 
-class SDAHymnal {
+export default class HymnAppController {
 
   constructor() {
 
-    this.language = 'en';
+    // vars
+    this.model = new FirebaseUser();
+    this.reactRoot = document.querySelector('#container');
 
-    this._favorites = new Favorites();
-
-
-
-    this.loadHymnal();
-
-
-
-  }
-
-  get reactTree() {
-    return ({
-      options: {
-        language: this.language,
-      },
-      actions: {
-        favorite: (a) => this.favorite(a),
-        unfavorite: (a) => this.favorite(a),
-        cycleColor: () => {},
-        openHymn: () => {},
-      }
+    // actions
+    this.model.on('load', () => {
+      this.storeActions();
+      this.mountView();
     });
-  }
-
-  // hymnal
-
-  loadHymnal(hymnalID = 'en1985') {
-
-    this.loadedHymnal = this.searchHymnals(hymnalID);
-
-    return !!this.loadedHymnal;
 
   }
 
-  searchHymnals(hymnalID) {
-    for(const languages of hymnalsData)
-      for(const hymnal of languages)
-        if(hymnal.id === hymnalID)
-          return hymnal;
-  }
+  storeActions() {
 
-
-
-  // favorites
-
-  favorite(n) {
-    this._favorites.save(n, this.hymnal.id)
-  }
-
-  unfavorite(n) {
-    this._favorites.unsave(n, this.hymnal.id)
-  }
-
-
-
-}
-
-class Favorites {
-
-  constructor() {
-
-    this.data = new Map();
+    this.modelActions = {
+      favorite: n => this.model.favorite(n),
+      recent: n => this.model.recent(n),
+      cycleTheme: () => this.model.cycleTheme(),
+      setLanguage: l => this.model.setLanguage(l),
+      setHymnal: h => this.model.setHymnal(h),
+      signIn: {
+        google: () => this.model.googleSignin(),
+        facebook: () => this.model.facebookSignin(),
+      },
+      logout: () => this.model.logout()
+    }
 
   }
 
-  save(hymn, hymnalID) {
-    const list = this.data.get(hymnalID) || new Set();
-    list.add(hymn);
-    this.data.set(hymnalID, list);
+  mountView() {
+
+    this.renderView();
+
+    this.model.on('data update', () => this.renderView());
+    this.model.on('server update', () => this.renderView()); // <-- better, though non-existent
+
   }
 
-  unsave(hymn, hymnalID) {
-    const list = this.data.get(hymnalID);
-    if(list) return list.delete(hymn);
-  }
+  renderView() {
 
+    ReactDOM.render(
+      <HymnApp
+        hymnal={data}
+        user={this.model.simpleUser}
+        popular={this.model.popularHymns}
+        actions={this.modelActions} />,
+      this.reactRoot
+    );
+
+  }
 
 }
 

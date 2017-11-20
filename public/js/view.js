@@ -11,7 +11,7 @@ import {
 // ---- React ---- //
 // --------------- //
 
-export default class HymnApp extends React.Component {
+export default class HymnAppView extends React.Component {
 
   constructor(props) {
     super(props);
@@ -29,21 +29,50 @@ export default class HymnApp extends React.Component {
         hymn: false,
         account: false,
       },
-      theme: this.savedTheme(),
       activeGroup: 'recents',
       hymn: 1,
     };
-    this.setTheme(this.state.theme);
-    this.updateLanuage('en')
+    this.hymnalChoices = Object.keys(this.props.hymnal).map(key =>
+      [key, this.props.hymnal[key].year + ' ' +
+      localizationStrings[this.props.hymnal[key].languageCode].words[this.props.hymnal[key].languageCode]]);
+
   }
 
   showPage(page) {
+
+    // search
+    setTimeout(()=>{
+      if(page === 'search') {
+        const searchBar = document.querySelector('#search-bar-input');
+        if(searchBar) searchBar.focus();
+        if(searchBar) searchBar.select();
+      } else if(page === 'hymn') {
+        const searchBar = document.querySelector('#search-bar-input');
+        if(searchBar) searchBar.blur();
+      }
+    }, 500);
+
     const pages = this.state.pages;
     pages[page] = true;
     this.setState({ pages });
   }
 
   hidePage(page) {
+
+    // search
+    setTimeout(()=>{
+      if(page === 'search') {
+        const searchBar = document.querySelector('#search-bar-input');
+        if(searchBar) searchBar.blur();
+      } else if(page === 'hymn') {
+        if(this.state.pages.search) {
+          const searchBar = document.querySelector('#search-bar-input');
+          if(searchBar) searchBar.focus();
+          if(searchBar) searchBar.select();
+        }
+      }
+    }, 500);
+
     const pages = this.state.pages;
     pages[page] = false;
     this.setState({ pages });
@@ -54,37 +83,10 @@ export default class HymnApp extends React.Component {
     this.showPage('list');
   }
 
-  updateListPage(activeGroup) {
-    this.setState({ activeGroup })
-  }
-
-  updateHomePage() {
-
-  }
-
-  updateLanuage(languageCode = 'en') {
-    this.languageCode = languageCode;
-    this.languageStrings = localizationStrings[languageCode];
-  }
-
   openHymn(hymn) {
-    this.props.tree.onRecent(hymn);
+    this.props.actions.recent(hymn);
     this.setState({ hymn });
     this.showPage('hymn');
-  }
-
-  savedTheme() {
-    if(!usableLocalStorage()) return 0;
-    let theme = Number(localStorage.getItem('theme'));
-    if(!(theme >= 0 && theme < this.colors.length)) theme = 0;
-    return theme;
-  }
-
-  cycleTheme() {
-    let theme = this.state.theme + 1;
-    if(theme >= this.colors.length) theme = 0;
-    this.setTheme(theme);
-    this.storeTheme(theme)
   }
 
   setTheme(theme) {
@@ -95,70 +97,92 @@ export default class HymnApp extends React.Component {
 
   }
 
-  storeTheme(theme) {
-    if(usableLocalStorage()) localStorage.setItem('theme', theme);
-    this.setState({ theme });
-  }
-
   render() {
-    const root = this.props.tree;
+
+
+    const user = this.props.user;
+    const hymnal = this.props.hymnal[user.hymnal];
+
+    const language = user.language || hymnal.languageCode;
+    const languageStrings = localizationStrings[language];
+    this.setTheme(this.props.user.theme);
+
+    const popular = this.props.popular[user.hymnal] || [];
+
+    let list = [];
+    switch(this.state.activeGroup) {
+      case 'favorites':
+        list = user.favorites;
+        break;
+      case 'recents':
+        list = user.recents;
+        break;
+      case 'popular':
+        list = popular;
+        break;
+    }
+
     return (
       <div id="hymn-app">
 
         <HymnAppHomePage
           show={this.state.pages.home}
-          title={this.languageStrings.words.hymnal}
-          user={root.user}
-          hymnal={root.hymnal}
-          groups={root.groups}
-          theme={this.state.theme}
+          title={languageStrings.words.hymnal}
+          user={user}
+          hymnalChoices={this.hymnalChoices}
+          hymnal={hymnal}
+          popular={popular}
+          theme={user.theme}
           openHymn={n => this.openHymn(n)}
-          onFavorite={n => root.onFavorite(n)}
-          cycleTheme={() => this.cycleTheme()} // <<
-          languageStrings={this.languageStrings}
+          onFavorite={n => this.props.actions.favorite(n)}
+          cycleTheme={() => this.props.actions.cycleTheme()} // <<
+          onHymnal={h => this.props.actions.setHymnal(h)}
+          languageStrings={languageStrings}
           showList={page => this.showList(page)}
           showPage={page => this.showPage(page)}
-          logout={() => root.logout()} />
+          logout={() => this.props.actions.logout()} />
 
         <HymnAppListPage
           show={this.state.pages.list}
-          title={this.languageStrings.words[this.state.activeGroup]}
-          list={root.groups[this.state.activeGroup]}
-          hymns={root.hymnal.data}
-          groups={root.groups}
+          title={languageStrings.words[this.state.activeGroup]}
+          list={list}
+          hymns={hymnal.data}
+          user={user}
           openHymn={n => this.openHymn(n)}
-          onFavorite={n => root.onFavorite(n)}
-          languageStrings={this.languageStrings}
+          onFavorite={n => this.props.actions.favorite(n)}
+          languageStrings={languageStrings}
           hidePage={() => this.hidePage('list')} />
 
         <HymnAppSearchPage
           show={this.state.pages.search}
-          hymns={root.hymnal.data}
-          favorites={root.groups.favorites}
+          hymns={hymnal.data}
+          favorites={user.favorites}
           openHymn={n => this.openHymn(n)}
-          onFavorite={n => root.onFavorite(n)}
-          languageStrings={this.languageStrings}
+          onFavorite={n => this.props.actions.favorite(n)}
+          languageStrings={languageStrings}
           hidePage={() => this.hidePage('search')} />
 
         <HymnAppHymnPage
           show={this.state.pages.hymn}
           hymn={this.state.hymn}
-          hymns={root.hymnal.data}
-          favorites={root.groups.favorites}
-          onFavorite={n => root.onFavorite(n)}
-          languageStrings={this.languageStrings}
+          hymns={hymnal.data}
+          favorites={user.favorites}
+          onFavorite={n => this.props.actions.favorite(n)}
+          languageStrings={languageStrings}
           hidePage={() => this.hidePage('hymn')} />
 
         <HymnAppAccountPage
           show={this.state.pages.account}
-          user={root.user}
-          signin={provider => root.signin(provider)}
+          user={user}
+          google={() => this.props.actions.signIn.google()}
+          facebook={() => this.props.actions.signIn.facebook()}
           onSignOut={2}
-          languageStrings={this.languageStrings}
+          languageStrings={languageStrings}
           hidePage={() => this.hidePage('account')} />
 
       </div>
     );
+
   }
 
 }
@@ -197,15 +221,17 @@ class HymnAppHomePage extends React.Component {
     const hymnal = this.props.hymnal;
     const hymns = hymnal.data;
 
-    const recentsShow = !!this.props.groups.recents.length;
-    const favoritesShow = !!this.props.groups.favorites.length;
-    const popularShow = !!this.props.groups.popular.length;
+    const favoritesShow = !!this.props.user.favorites.length;
+    const recentsShow = !!this.props.user.recents.length;
+    const popularShow = !!this.props.popular.length;
 
     const popularSectionLength = (!recentsShow && !favoritesShow) ? 7 : 3 ;
 
     const accountButton = this.props.user.name ? this.props.user.name : this.props.languageStrings.words.signIn;
     const accountButtonAction = this.props.user.name ? (() => (window.confirm('logout?') && this.props.logout())) : () => this.props.showPage('account');
 
+    const hymnalChoices = this.props.hymnalChoices.map(([value, text]) => <option key={value} value={value}>{text}</option>);
+    // const hymnalChoices = this.props.hymnalChoices.map(text => <option>{text}</option>);
 
     return (
       <div id="home-page" className={pageClass}>
@@ -215,11 +241,19 @@ class HymnAppHomePage extends React.Component {
             <span className="title-bar">
               <span className="page-title">{this.props.title}</span>
               <span className="left-title">
-                <ThemeButton theme={this.props.theme} onClick={() => this.props.cycleTheme()} />
+                <ThemeButton theme={this.props.user.theme} onClick={() => this.props.cycleTheme()} />
               </span>
             </span>
             <span className="subtitle-bar">
-              <span id="hymnal-info">{`${hymnal.year} ${this.props.languageStrings.words[hymnal.languageCode]}`}</span>
+              <span id="hymnal-info">
+
+                <select value={this.props.user.hymnal} onChange={e => this.props.onHymnal(e.target.value)}>
+                  {hymnalChoices}
+                </select>
+                
+                {/*{`${hymnal.year} ${this.props.languageStrings.words[hymnal.languageCode]}`}*/}
+                
+                </span>
               <span id="account-button" onClick={accountButtonAction}>{accountButton}</span>
             </span>
           </div>
@@ -235,8 +269,9 @@ class HymnAppHomePage extends React.Component {
                 onClick={() => this.props.showList('recents')}>{ this.props.languageStrings.words.recents + ' ▾'}</span>
               <HymnList
                 hymns={hymns}
-                list={this.props.groups.recents.slice(0, this.sectionListLength)}
-                groups={this.props.groups}
+                list={this.props.user.recents.slice(0, this.sectionListLength)}
+                favorites={this.props.user.favorites}
+                recents={this.props.user.recents}
                 sortMethod="Latest Viewed"
                 onClick={n => this.props.openHymn(n)}
                 onFavorite={n => this.props.onFavorite(n)} />
@@ -250,9 +285,10 @@ class HymnAppHomePage extends React.Component {
                 onClick={() => this.props.showList('favorites')}>{ this.props.languageStrings.words.favorites + ' ▾'}</span>
               <HymnList
                 hymns={hymns}
-                list={this.props.groups.favorites.slice(0, this.sectionListLength)}
-                groups={this.props.groups}
-                sortMethod="Latest Viewed"
+                list={this.props.user.favorites.slice(-this.sectionListLength)}
+                favorites={this.props.user.favorites}
+                recents={this.props.user.recents}
+                sortMethod="by Favorites"
                 onClick={n => this.props.openHymn(n)}
                 onFavorite={n => this.props.onFavorite(n)} />
             </div>
@@ -265,8 +301,9 @@ class HymnAppHomePage extends React.Component {
                 onClick={() => this.props.showList('popular')}>{ this.props.languageStrings.words.popular + ' ▾'}</span>
               <HymnList
                 hymns={hymns}
-                list={this.props.groups.popular.slice(0, popularSectionLength)}
-                groups={this.props.groups}
+                list={this.props.popular.slice(0, popularSectionLength)}
+                favorites={this.props.user.favorites}
+                recents={this.props.user.recents}
                 onClick={n => this.props.openHymn(n)}
                 onFavorite={n => this.props.onFavorite(n)} />
             </div>
@@ -330,7 +367,8 @@ class HymnAppListPage extends React.Component {
             <HymnList
               hymns={this.props.hymns}
               list={this.props.list}
-              groups={this.props.groups}
+              favorites={this.props.user.favorites}
+              recents={this.props.user.recents}
               sortMethod={this.state.sortMethod}
               onClick={n => this.props.openHymn(n)}
               onFavorite={n => this.props.onFavorite(n)} />
@@ -510,8 +548,6 @@ class HymnAppSearchPage extends React.Component {
     let pageClass = 'app-page';
     if(!this.props.show) pageClass += ' hidden';
 
-    const groups = { favorites: this.props.favorites };
-
     return (
 
       <div id="search-page" className={pageClass}>
@@ -527,7 +563,7 @@ class HymnAppSearchPage extends React.Component {
             <HymnList
               hymns={this.props.hymns}
               list={this.state.list}
-              groups={groups}
+              favorites={this.props.favorites}
               onClick={n => this.props.openHymn(n)}
               onFavorite={n => this.props.onFavorite(n)} />
 
@@ -676,7 +712,7 @@ class HymnAppAccountPage extends React.Component {
               <img
                 src="./resources/images/googleSignin.svg"
                 alt="Google Sign In"
-                onClick={() => this.props.signin('google')} />
+                onClick={() => this.props.google()} />
               {/*<img*/}
                 {/*src="./resources/images/facebookSignin.svg"*/}
                 {/*alt="Facebook Sign In"*/}
@@ -718,7 +754,13 @@ class HymnList extends React.Component {
 
   render() {
 
-    const { hymns, list, groups, sortMethod } = this.props;
+    const {
+      hymns,
+      list,
+      favorites = [],
+      recents = [],
+      sortMethod,
+    } = this.props;
     let mappedList = list.map(n => hymns[n - 1]);
 
     if(sortMethod) {
@@ -726,10 +768,10 @@ class HymnList extends React.Component {
       let method;
       switch(this.props.sortMethod) {
         case 'Latest Viewed':
-          method = (a, b) => groups.recents.indexOf(b.number) - groups.recents.indexOf(a.number);
+          method = (a, b) => recents.indexOf(b.number) - recents.indexOf(a.number);
           break;
         case 'Oldest Viewed':
-          method = (a, b) => groups.recents.indexOf(a.number) - groups.recents.indexOf(b.number);
+          method = (a, b) => recents.indexOf(a.number) - recents.indexOf(b.number);
           break;
         case 'Alphabetically':
           method = (a, b) => a.name.localeCompare(b.name);
@@ -738,7 +780,7 @@ class HymnList extends React.Component {
           method = (a, b) => b.name.localeCompare(a.name);
           break;
         case 'by Favorites':
-          method = (a, b) => groups.favorites.indexOf(b.number) - groups.favorites.indexOf(a.number);
+          method = (a, b) => favorites.indexOf(b.number) - favorites.indexOf(a.number);
           break;
         case 'by Number Ascending':
           method = (a, b) => a.number - b.number;
@@ -753,7 +795,13 @@ class HymnList extends React.Component {
     }
 
     const entries = mappedList.map(hymn =>
-      <HymnEntry key={hymn.number} number={hymn.number} name={hymn.name} favorited={groups.favorites.indexOf(hymn.number) !== -1} onClick={() => this.props.onClick(hymn.number)} onFavorite={() => this.props.onFavorite(hymn.number)} />
+      <HymnEntry
+        key={hymn.number}
+        number={hymn.number}
+        name={hymn.name}
+        favorited={favorites.indexOf(hymn.number) !== -1}
+        onClick={() => this.props.onClick(hymn.number)}
+        onFavorite={() => this.props.onFavorite(hymn.number)} />
     );
 
     return (

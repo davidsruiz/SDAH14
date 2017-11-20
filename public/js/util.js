@@ -62,3 +62,29 @@ export function usableLocalStorage(){
     return false;
   }
 }
+
+// Enums //
+
+export class Enum {
+
+  constructor(...props) {
+    let i = 1; // so it never tests as false/no-value
+    for(let prop of props) this[prop] = i++;
+  }
+
+}
+
+
+// unique elems in array
+
+export function uniqueElements(arr) {
+  const uniqueArray = [];
+  for(const elem of arr)
+    if(uniqueArray.indexOf(elem) === -1)
+      uniqueArray.push(elem);
+  return uniqueArray;
+}
+
+export function arrayContains(arr, item) {
+  return arr.indexOf(item) !== -1;
+}
