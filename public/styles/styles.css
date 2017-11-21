@@ -41,6 +41,18 @@ input {
     outline: 0;
 }
 
+
+select {
+    -webkit-appearance: unset;
+    border: none;
+    background-color: transparent;
+    outline: none;
+
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
 #container {
     overflow: hidden;
 }
