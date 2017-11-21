@@ -173,6 +173,7 @@ export default class HymnAppView extends React.Component {
 
         <HymnAppAccountPage
           show={this.state.pages.account}
+          title={languageStrings.words.account}
           user={user}
           google={() => this.props.actions.signIn.google()}
           facebook={() => this.props.actions.signIn.facebook()}
@@ -362,7 +363,7 @@ class HymnAppListPage extends React.Component {
           <div className="page-bottom">
 
             <span className="subtitle-bar">
-              <ListSort options={this.sortMethodOptions} onChange={method => this.updateSortMethod(method)} />
+              <ListSort options={this.sortMethodOptions} onChange={method => this.updateSortMethod(method)} languageStrings={this.props.languageStrings} />
             </span>
             <HymnList
               hymns={this.props.hymns}
@@ -701,7 +702,7 @@ class HymnAppAccountPage extends React.Component {
       <div id="account-page" className={pageClass}>
         <div className="page-content">
           <div className="page-top">
-            <span className="page-title">Account</span>
+            <span className="page-title">{this.props.title}</span>
             <span className="left-title">
                 <CloseButton onClick={() => this.props.hidePage()} />
               </span>
@@ -731,18 +732,32 @@ class ListSort extends React.Component {
 
   render() {
 
-    let options = [];
-    for(let option of this.props.options) {
-      options.push(
-        <option key={option}>{option}</option>
-      );
-    }
+    const translatedOptions = this.props.options.map(option => this.props.languageStrings.sortMethods[option]);
+    const values = this.props.options.slice();
+
+    // let options = [];
+    // for(let option of this.props.options) {
+    //   options.push(
+    //     <option key={option}>{this.props.languageStrings.sortMethods[option]}</option>
+    //   );
+    // }
+    // return (
+    //   <span id="list-sort">
+    //     {this.props.languageStrings.words.sort}: <select id="list-sort-select" onChange={e => this.props.onChange(e.target.value)} dir="rtl">
+    //       {options}
+    //     </select>
+    //   </span>
+    // );
 
     return (
       <span id="list-sort">
-        Sort: <select id="list-sort-select" onChange={e => this.props.onChange(e.target.value)} dir="rtl">
-          {options}
-        </select>
+        {this.props.languageStrings.words.sort}: <VariableWidthSelect
+          id="list-sort-select"
+          onChange={e => this.props.onChange(e.target.value)}
+          dir="rtl"
+          options={translatedOptions}
+          values={values} />
+
       </span>
     );
   }
@@ -886,5 +901,71 @@ class ThemeButton extends React.Component {
     );
   }
 
+}
+
+
+class VariableWidthSelect extends React.Component {
+
+  constructor(props) {
+    super(props);
+
+    this.IDS = {
+      mainSelectClassID: '_' + Math.round(Math.random()*10000),
+      referenceSelect: 'ref_select__',
+      referenceSelectOption: 'ref_select_option__',
+    };
+  }
+
+  componentDidMount() {
+    this.updateWidth();
+  }
+
+  optionChosen(event) {
+    this.updateWidth()
+    this.props.onChange(event);
+  }
+
+  updateWidth() {
+    const selectNode = document.querySelector(`.${this.IDS.mainSelectClassID}`);
+    const selectedOption = selectNode.querySelector(`:checked`);
+    const referenceSelect = document.getElementById(this.IDS.referenceSelect);
+    const referenceSelectOption = document.getElementById(this.IDS.referenceSelectOption);
+    if(!referenceSelect || !referenceSelectOption) return;
+    referenceSelectOption.innerHTML = selectedOption.innerHTML;
+    selectNode.style.width = `${referenceSelect.offsetWidth}px`;
+  }
+  
+  render() {
+
+    let {
+      id = '',
+      className = '',
+      onChange = () => {},
+      dir = 'rtl',
+
+      options = [],
+      values,
+    } = this.props;
+
+    const optionTags = [];
+    for(let i = 0; i < options.length; i++) {
+      const option = options[i];
+      const value = (typeof values[i] !== 'undefined') ? values[i] : option;
+      optionTags.push(
+        <option key={option} value={value}>{option}</option>
+      );
+    }
+
+    return (
+      <div>
+        <select id={id} className={className + ' ' + this.IDS.mainSelectClassID} onChange={e => this.optionChosen(e)} dir={dir}>
+          {optionTags}
+        </select>
+        <select id={this.IDS.referenceSelect} style={{position: 'fixed', top: '-100px'}}>
+          <option id={this.IDS.referenceSelectOption}></option>
+        </select>
+      </div>
+    );
+  }
 }
 
