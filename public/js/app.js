@@ -13,7 +13,7 @@ const callback = (()=>{
 
 });
 
-window.onload = callback;
+window.addEventListener('load', () => callback());
 
 
 

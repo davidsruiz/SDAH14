@@ -70,12 +70,19 @@ export default class FirebaseUser extends EventProtocol {
     // create temp storage data for in case no account
     this.localOverwriteStorage();
 
-    // attempt establish firebase connection
-    this.authOnFirebase();
-
     // setup google and facebook signin providers
     this.prepareSignInMethods();
 
+    // // setup firebase settings before connecting
+    // this.setupFirebase(() => {
+    //
+    //   // attempt establish firebase connection
+    //   this.authOnFirebase();
+    //
+    // });
+
+    // attempt establish firebase connection
+    this.authOnFirebase();
 
     setTimeout(()=>{
       this.execListeners('load');
@@ -153,12 +160,22 @@ export default class FirebaseUser extends EventProtocol {
 
   }
 
+  setupFirebase(callback) {
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+      .then(() => {
+        callback && callback();
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  }
+
   authOnFirebase() {
 
     // log in
     firebase.auth().getRedirectResult()
 
-      // if firebase auth not accessible
+    // if firebase auth not accessible
       .catch(error => {
         console.error(error);
       });
@@ -183,6 +200,18 @@ export default class FirebaseUser extends EventProtocol {
 
       }
 
+      // this.setupFirebase();
+
+    });
+
+  }
+
+  locallySignInUser(user) {
+    this.saveDBRef(user);
+    this.cloudToLocal(() => {
+      this.localOverwriteCloud();
+      this.clearStorage();
+      this.localToView();
     });
   }
 
@@ -206,7 +235,7 @@ export default class FirebaseUser extends EventProtocol {
       if(cloudDataStr) {
 
         const cloudData = JSON.parse(cloudDataStr);
-        console.log(cloudData);
+        // console.log(cloudData);
 
         // favorites
 
