@@ -35,7 +35,7 @@ export default class PracticalStorage {
   clear(key) {
     if(!this.storageIsViable()) return false;
 
-    this.storageTool.clear(key);
+    this.storageTool.removeItem(key);
     return true;
   }
 

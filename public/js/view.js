@@ -395,7 +395,7 @@ class HymnAppSearchPage extends React.Component {
   updateSearchQuery(query) {
 
     const list = this.search(this.props.hymns, query);
-    console.log(list);
+    // console.log(list);
 
 
     this.setState({ query, list: list.map(entry => entry.hymn.number) })
